@@ -1,0 +1,17 @@
+{
+  "name": "narad",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "NT&RC",
+  "license": "ISC",
+  "dependencies": {
+    "ejs": "latest",
+    "express": "latest",
+    "mongoose": "latest",
+    "unirest": "latest"
+  }
+}
