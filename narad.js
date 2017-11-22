@@ -10,7 +10,7 @@ app.get("/", function(req, res) {
     res.render("temp");
 });
  
-// var mainSchedulerController = require('./controllers/mainController');
-// mainSchedulerController.run();
+var mainController = require('./controllers/mainController');
+mainController.run(app);
 
 app.listen(conf.app.port);

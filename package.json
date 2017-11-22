@@ -9,6 +9,7 @@
   "author": "NT&RC",
   "license": "ISC",
   "dependencies": {
+    "body-parser": "^1.18.2",
     "ejs": "latest",
     "express": "latest",
     "mongoose": "latest",

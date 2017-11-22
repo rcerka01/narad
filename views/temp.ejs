@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content="">
-    <link rel="icon" href="../../../../favicon.ico">
 
     <title>Narad</title>
 
@@ -19,20 +18,147 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <!-- JQuery JSON js -->
     <script src="/assets/json/jquery.json-viewer.js"></script>
-  </head>
+    <!-- Monent (for data picker) js -->
+    <script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <!-- Chart js -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
 
+    <!-- Include Date Range Picker --> 
+    <script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
+    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
+
+
+
+
+
+
+
+    <style>
+      canvas {
+        width:600px !important;
+        height:400px !important;
+      }
+    </style> 
+
+
+
+
+
+
+  </head>
   <body>
 
     <div class="container">
 
-      <h1>Narad</h1>
+      <h1>Today</h1>
       <hr>
+
+
+
+
+
+
+      <canvas id="myChart" width="100" height="100"></canvas>
+      
+
+
+
+
+
+
+      <div id="reportrange" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+        <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>&nbsp;
+        <span></span> <b class="caret"></b>
+      </div>
+
+
+
+
+
+
+
 
     </div> <!-- /container -->
 
   <script>
-    $(document).ready( function() {} );
-  </script>
+    $(document).ready( function() { 
+      //alert(moment()) 
+    });
+
+    ////////////////////// date picker
+    $(function() {
+    
+        var start = moment().subtract(29, 'days');
+        var end = moment();
+    
+        function cb(start, end) {
+            $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+        }
+    
+        $('#reportrange').daterangepicker({
+            startDate: start,
+            endDate: end,
+            ranges: {
+               'Today': [moment(), moment()],
+               'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+               'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+               'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+               'This Month': [moment().startOf('month'), moment().endOf('month')],
+               'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+            }
+        }, cb);
+    
+        cb(start, end);
+        
+    });
+
+
+  
+
+
+
+
+    ////////////////////////// charts
+
+    var ctx = document.getElementById("myChart").getContext('2d');
+    var myChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ["Finished", "In Play"],
+        datasets: [{
+            label: '# of GAMES',
+            data: [12, 3],
+            backgroundColor: [
+              'rgba(54, 162, 235, 0.2)',
+              'rgba(255, 99, 132, 0.2)'
+            ],
+            borderColor: [
+              'rgba(54, 162, 235, 1)',
+              'rgba(255,99,132,1)'
+            ],
+            width: 100,
+            borderWidth: 1
+        }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+       scales: {
+           yAxes: [{
+               ticks: {
+                   beginAtZero:true
+               }
+           }]
+       }
+   }
+});
+    
+
+
+
+
+
+</script>
 
 </body>
 </html>
