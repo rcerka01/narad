@@ -1,10 +1,10 @@
 var bodyParser = require('body-parser')
 var action = require("../models/Action").dataset;
-var logAccount = require("../models/logAccount").dataset;
-var logGame= require("../models/logGame").dataset;
-var logMarket = require("../models/logMarket").dataset;
-var logResult = require("../models/logResult").dataset;
-var logStatus = require("../models/logStatus").dataset;
+var logAccount = require("../models/LogAccount").dataset;
+var logGame= require("../models/LogGame").dataset;
+var logMarket = require("../models/LogMarket").dataset;
+var logResult = require("../models/LogResult").dataset;
+var logStatus = require("../models/LogStatus").dataset;
 
 module.exports = { run: function (app) {
     app.use(bodyParser.json());
