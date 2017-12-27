@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Narad</title>
+
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+    <!-- Custom styles for this template -->
+    <link href="/assets/css/grid.css" rel="stylesheet">
+    <!-- JQuery JSON styles -->
+    <link href="/assets/json/jquery.json-viewer.css" rel="stylesheet">
+    <!-- JS Util -->
+    <script src="/assets/js/util.js"></script>
+    <!-- JS Main -->
+    <script src="/assets/js/account.js"></script>
+    <!-- Moment (for data picker) js -->
+    <script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <!-- Chart js -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
+    <!-- Include Date Range Picker --> 
+    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
+
+    <!-- for chart graph -->
+    <style>
+      canvas {
+        width:1100px !important;
+        height:400px !important;
+      }
+    </style> 
+
+  </head>
+  <body>
+    <div class="container">
+      <nav class="navbar navbar-expand-sm navbar-light bg-light">
+          <a class="navbar-brand" href="https://www.betfair.com/exchange/plus/inplay" target="_blank">Betfair</a>          
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+          </button>        
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+              <ul class="navbar-nav mr-auto">
+                  <li class="nav-item">
+                      <a class="nav-link" href="/">In Bet</a>
+                  </li>
+                  <li class="nav-item">
+                      <a class="nav-link" href="/stats">Stats</a>
+                  </li>
+                  <li class="nav-item">
+                      <a class="nav-link" href="/bets">Bets</a>
+                  </li>
+                  <li class="nav-item active">
+                      <a class="nav-link" href="/account">Account</a>
+                  </li>
+              </ul>
+              <ul class="navbar-nav mr-right">
+                  <li class="nav-item active">
+                      <a class="nav-link" href="#">Login</a>
+                  </li>
+              </ul>
+          </div>
+      </nav>
+      <!-- £££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££ -->
+      <hr>
+      
+      <h4>DATE</h4>
+      <div id="reportrange" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+        <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>&nbsp;
+        <span></span><b class="caret"></b>
+      </div>
+
+      <div id="output"></div>
+      <hr>
+      <div id="profit-chart-holder">
+        <canvas id="profitchart" width="1100" height="400"></canvas>
+      </div>
+      <div id="chart-holder">
+        <canvas id="chart" width="1100" height="400"></canvas>
+      </div>
+
+      <!-- jQuery first, then Popper.js, then Bootstrap JS --> 
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+      <!-- JQuery JSON js -->
+      <script src="/assets/json/jquery.json-viewer.js"></script>
+      <!-- Include Date Range Picker --> 
+      <script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
+   
+      <script>
+        $(document).ready( function() { 
+          // get account is a function
+          datePicker(getAccount);
+        });     
+      </script>
+
+    </div>
+  </body>
+</html>

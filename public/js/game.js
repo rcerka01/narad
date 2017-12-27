@@ -9,7 +9,10 @@ function getGame(eventId){
         var results = msg.results;
 
         var output =
+        "<hr>" +
         "<h4>" + results[0].logGame.eventName + "</h4>" +
+        "<hr>" +
+        "<a href='/search?team1=" + results[0].logGame.runners.runner1Name + "&team2=" + results[0].logGame.runners.runner2Name + "' target='_blank'>SEARCH</a>"  
         "<hr>" +
         "<p>" + 
           results[0].logGame.competitionName + " | " + 
