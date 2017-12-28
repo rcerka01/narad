@@ -17,6 +17,8 @@ function getBets(start, end) {
                 var noResultCount = 0; // yellow
                 var lostCount = 0; // red
 
+                var onePoundProfit = 0;
+
                 // decorate and collect totals
                 for (var i in resultsActions) {
 
@@ -27,6 +29,7 @@ function getBets(start, end) {
                     
                     try { var betStatus = resultsActions[i].betStatus.status } catch(e) { var betStatus = "undefined" }
                     if ( betStatus == "SUCCESS") {
+                        onePoundProfit = onePoundProfit + (resultsActions[i].back - 1);
                         successfulCount++;
                     }
                     if ( betStatus == "FAILURE" && resultsActions[i].back > 0) {
@@ -57,6 +60,8 @@ function getBets(start, end) {
                 // output
                 var output = 
                     "<hr>"
+                    + "One Pound Bet Proffit: <span style='color:pink;'>" + onePoundProfit.toFixed(2) + "</span>"
+                    + "<hr>"
                     + "<h4>ALL BETS</h4>"
                     + betsTable(resultsActions)
                 
