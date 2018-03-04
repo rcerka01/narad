@@ -440,7 +440,8 @@ var myChart = new Chart(ctx, {
           "Failed Zero Back Price Bets", 
           "Other Failed Bets", 
           "No Results",
-          "Lost Bets"
+          "Lost Bets",
+          "Unknown Result"
         ],
         datasets: [{
             label: 'Bets',
@@ -451,9 +452,11 @@ var myChart = new Chart(ctx, {
               'pink',
               '#ff8080',
               'yellow',
-              'red'
+              'red',
+              'brown'
             ],
             borderColor: [
+              'rgba(54, 162, 235, 1)',
               'rgba(54, 162, 235, 1)',
               'rgba(54, 162, 235, 1)',
               'rgba(54, 162, 235, 1)',

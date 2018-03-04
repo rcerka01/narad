@@ -152,8 +152,7 @@ module.exports = { run: function (app) {
             res.json({total: total, results: results}); 
         });
     });
-
-            
+        
     // LOG RESULT
     app.post("/findLogResultQuery", function(req, res) {
         
@@ -163,6 +162,31 @@ module.exports = { run: function (app) {
         logResult.find(find, subset).sort(sort).exec(function (err, results) {
             
             if (err) console.log("EXCEPTION IN FIND LOGG RESULT QUERY: " + err);
+            
+            try { var total = results.length; } catch(e) { var total = 0; }
+            res.json({total: total, results: results}); 
+        });
+    });
+
+    // // LOG RESULT BY DATE
+    app.post("/findLogResultsByDate", function(req, res) {
+    
+        var start = req.body.start;
+        var end = req.body.end;
+
+        var find = 
+            { _id: 
+                {
+                    $gte: ObjectId(Math.floor(start/1000).toString(16) + "0000000000000000"), 
+                    $lte: ObjectId(Math.floor(end/1000).toString(16) + "0000000000000000")
+                }
+            };
+
+        var sort = req.body.sort;
+        var subset = req.body.subset;    
+        logResult.find(find).sort(sort).exec(function (err, results) {
+            
+            if (err) console.log("EXCEPTION IN FIND LOGG RESULTS QUERY: " + err);
             
             try { var total = results.length; } catch(e) { var total = 0; }
             res.json({total: total, results: results}); 
