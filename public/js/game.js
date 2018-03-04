@@ -62,7 +62,7 @@ function getResult(eventId){
 
         var output =
         "<hr>" +        
-        "<h4>" + "Winner: " + winner  + "</h4>"
+        "<h4>" + "WINNER: " + winner  + "</h4>"
 
         $('#result').html(output);
     }    
