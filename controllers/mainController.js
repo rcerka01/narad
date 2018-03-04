@@ -23,5 +23,9 @@ module.exports = { run: function (app) {
         app.get("/account", function(req, res) {
             res.render("account");
         });
+        
+        app.get("/research", function(req, res) {
+            res.render("research");
+        });
     }
 }

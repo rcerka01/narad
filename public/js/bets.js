@@ -16,6 +16,7 @@ function getBets(start, end) {
                 var otherFailCount = 0; // other red
                 var noResultCount = 0; // yellow
                 var lostCount = 0; // red
+                var unknownCount = 0; // brown
 
                 var onePoundProfit = 0;
 
@@ -42,7 +43,10 @@ function getBets(start, end) {
                         resultsActions[i].color = "yellow";
                     }
 
-                    if (resultsActions[i].results.split(" ")[1] != resultsActions[i].selectionId && resultsActions[i].results.length != 0) {
+                    if (resultsActions[i].results.split(" ")[1] == "unknown") {
+                        unknownCount++;
+                        resultsActions[i].color = "brown";
+                    } else if (resultsActions[i].results.split(" ")[1] != resultsActions[i].selectionId && resultsActions[i].results.length != 0) {
                         lostCount++;
                         resultsActions[i].color = "red";
                     }
@@ -54,7 +58,8 @@ function getBets(start, end) {
                     zeroBetCount, 
                     otherFailCount, 
                     noResultCount,
-                    lostCount];
+                    lostCount,
+                    unknownCount];
                 drawBetsGraph("betsGraph", chartData);
 
                 // output
