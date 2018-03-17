@@ -30,11 +30,14 @@ function getData(start, end) {
 
                         var totalResults = msgResults.total;
                         var resultsResults = msgResults.results; 
-                        var distinctResultsEventsIds = Array.from(new Set(resultsResults.map(r=>r.logResult[0].eventId)))
+                        var distinctResultsEventsIds = Array.from(new Set(resultsResults.map(r=>r.logResult[0].eventId)))                     
                         /// CALCULATE, THIS IS IMPORTANT
                         var resultsMissing = 0;
                         ///
 
+                        var array3 = distinctResultsEventsIds.filter(function(obj) { return distinctGamesEventsIds.indexOf(obj) == -1; });
+                        var gizmo = "Games: " + distinctGamesEventsIds + "<br>Results: " + distinctResultsEventsIds + "<br>Different: " + array3
+                      
                         /// NOT IN USE, BUT CAN BE JOINED THIS WAY
                         var gamesActions = resultsGames.map(game => {
                             try { var action = successfulActions.filter(action => action.eventId == game.logGame.eventId)[0]; } 
@@ -152,7 +155,7 @@ function getData(start, end) {
                         // output = output + games;
                         // output = output + "</table>"
 
-                         $('#output').html(output);
+                         $('#output').html(gizmo);
 
         }});     
     }});     

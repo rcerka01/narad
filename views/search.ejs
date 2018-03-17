@@ -40,7 +40,14 @@
   </head>
   <body>
     <div class="container">
+
+      <div id="reportrange" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+        <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>&nbsp;
+        <span></span> <b class="caret"></b>
+       </div>
+
        <hr>
+
        <h4>SEARCH</h4>
        <hr>
        <h5 id="team1">Tam name</h5>
@@ -88,7 +95,7 @@
           $('#team1').html(team1)
           var team2 = unescape(urlParam('team2'));
           $('#team2').html(team2)
-          search(team1, team2);
+          datePickerForSearch(search, team1, team2);
         });     
       </script>
 

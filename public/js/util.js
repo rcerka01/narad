@@ -147,7 +147,38 @@ function drawChart(divId, items, data, label, color, title) {
       $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
       // function to return data
       if (f) { f(start, end); }
-      if (f2) { f2(start, end); }
+      if (f2) { f2(start, end); }    
+    }
+
+    $('#reportrange').daterangepicker({
+        startDate: start,
+        endDate: end,
+        ranges: {
+           'Today': [moment(), moment()],
+           'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+           'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+           'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+           'This Month': [moment().startOf('month'), moment().endOf('month')],
+           'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+        }
+    }, cb);
+
+    cb(start, end); 
+}
+
+//###################################################################################
+
+  // get data picker (stats, bets, account)
+  function datePickerForSearch(f, team1, team2) {
+            
+    var start = moment().subtract(2, 'month');
+    var end = moment();
+
+    function cb(start, end) {
+      // showe date in picker
+      $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+      // function to return data
+      f(team1, team2, start, end);
     }
 
     $('#reportrange').daterangepicker({
@@ -499,21 +530,37 @@ function searchTable(data, homeAway) {
   + "<tbody>";  
 
   var outputBody = "";
+
+  var win = 0;
+  var loose = 0;
+  var draw = 0;
+
   for (var i in data) {
-  outputBody = outputBody
-    + "<tr>"
-    + "<td>" + data[i].startTime.slice(0, -5).replace("T", " ") + "</td>"
-    + "<td><strong>" + data[i].eventName + "</strong><br>" + data[i].competitionName + "<br>" + data[i].countryCode + "</td>"
-    + "<td>" + homeAway + " name: <strong>" + data[i].homeName + "</strong><br>Runner: " + data[i].run1Name + "<br>Selection ID: " + data[i].runSelectionId + "</td>"
-    + "<td>" + data[i].homeName + "<br>" + data[i].runSelectionId + "<br><strong>" + data[i].team + "</strong></td>"
-    + "<td>" + data[i].runDrawSelectionId + "<br><strong>" + data[i].draw + "</strong></td>"
-    + "<td><a href='/game?eventId=" + data[i].eventId + "' target='_blank'>GAME STATS</a></td>"
-    + "</tr>";
+
+    if (data[i].team == "WINNER") win++;
+    if (data[i].team == "LOSER" && data[i].draw == "LOSER") loose++;
+    if (data[i].draw == "WINNER") draw++;
+
+    outputBody = outputBody
+      + "<tr>"
+      + "<td>" + data[i].startTime.slice(0, -5).replace("T", " ") + "</td>"
+      + "<td><strong>" + data[i].eventName + "</strong><br>" + data[i].competitionName + "<br>" + data[i].countryCode + "</td>"
+      + "<td>" + homeAway + " name: <strong>" + data[i].homeName + "</strong><br>Runner: " + data[i].run1Name + "<br>Selection ID: " + data[i].runSelectionId + "</td>"
+      + "<td>" + data[i].homeName + "<br>" + data[i].runSelectionId + "<br><strong>" + data[i].team + "</strong></td>"
+      + "<td>" + data[i].runDrawSelectionId + "<br><strong>" + data[i].draw + "</strong></td>"
+      + "<td><a href='/game?eventId=" + data[i].eventId + "' target='_blank'>GAME STATS</a></td>"
+      + "</tr>";
   }
 
   var outputBottom = "</tbody></table>";
 
-  return outputTop + outputBody + outputBottom;
+  var outputResume = "<br><strong>" +
+  "<span style='color:green;padding:10px;'>" + win + "</span>" +
+  "<span style='color:red;padding:10px;'>" + loose + "</span>" +
+  "<span style='color:black;padding:10px;'>" + draw + "</span>" +
+  "</strong>";
+
+  return outputTop + outputBody + outputBottom + outputResume;
 }
 
 //###################################################################################
@@ -556,6 +603,8 @@ function getSearchResults(runner, i, total, outputDiv, homeAway, results, selIds
               results.reverse();
               var output = searchTable(results, homeAway)
               $(outputDiv).html(output);
+          } else {
+            $(outputDiv).html("...");
           }
       }
   })

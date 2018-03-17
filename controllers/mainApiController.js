@@ -118,17 +118,24 @@ module.exports = { run: function (app) {
     
         var start = req.body.start;
         var end = req.body.end;
+        var command1 = req.body.command1;
+        var command2 = req.body.command2;
 
-        var find = 
-            { _id: 
-                {
+        if (command1) { var command1Js = { $eq: command1 }; } else { var command1Js = { $exists: true }; }
+        if (command2) { var command2Js = { $eq: command2 }; } else { var command2Js = { $exists: true }; }
+        
+        var find = {
+             _id: {
                     $gte: ObjectId(Math.floor(start/1000).toString(16) + "0000000000000000"), 
                     $lte: ObjectId(Math.floor(end/1000).toString(16) + "0000000000000000")
-                }
+                },
+                "logGame.runners.runner1Name": command1Js,
+                "logGame.runners.runner2Name": command2Js
             };
 
         var sort = req.body.sort;
-        var subset = req.body.subset;    
+        var subset = req.body.subset;  
+          
         logGame.find(find).sort(sort).exec(function (err, results) {
             
             if (err) console.log("EXCEPTION IN FIND LOGG GAME QUERY: " + err);
