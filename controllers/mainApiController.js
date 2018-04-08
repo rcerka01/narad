@@ -240,6 +240,8 @@ module.exports = { run: function (app) {
             });
         });
 
+    //############################################################################            
+
     app.post("/findEmptyResponse", function(req, res) { 
         var find = req.body.find;
         
@@ -256,5 +258,10 @@ module.exports = { run: function (app) {
                 res.json({total: total, results: lostGames}); 
             });
     });
+
+    //############################################################################ SEARCH   
+
+    var searchApiController = require('./searchApiController');
+    searchApiController.run(app);
   }
 }

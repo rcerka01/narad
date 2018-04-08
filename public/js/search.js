@@ -4,20 +4,11 @@ function search(team1, team2, start, end) {
     $('#output3').html("...")
     $('#output4').html("...")
 
-   // var body = { start: start+"", end: end+"" };
-
     var team1body1 = { start: start+"", end: end+"", command1: team1 } 
     var team1body2 = { start: start+"", end: end+"", command2: team1 }  
 
     var team2body1 = { start: start+"", end: end+"", command1: team2 }   
     var team2body2 = { start: start+"", end: end+"", command2: team2 } 
-
-
-    // var team1body1 = { "find": { "logGame.runners.runner1Name": team1 } }   
-    // var team1body2 = { "find": { "logGame.runners.runner2Name": team1 } }   
-
-    // var team2body1 = { "find": { "logGame.runners.runner1Name": team2 } }   
-    // var team2body2 = { "find": { "logGame.runners.runner2Name": team2 } } 
 
     var homeIds = {
         runName: "runner1Name",

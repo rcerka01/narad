@@ -1,3 +1,17 @@
+function findResult(eventId, results) {
+    var gameResult = (results.find(rr => (rr.logResult[0].eventId == eventId)))
+    if (typeof gameResult !== "undefined") { 
+        var selectionId  = (gameResult.logResult[0].item.runners)
+            .map(runner => { if (runner.status == "WINNER") { return runner.selectionId } })
+            .join(''); 
+    } else {
+        var selectionId = "undefined";
+    }
+    return selectionId ;
+}
+
+/////////////////////////////////////////////////////////////////////////////////
+
 function getData(start, end) {
     var body = { start: start+"", end: end+"" };
     $.ajax({
@@ -6,158 +20,77 @@ function getData(start, end) {
        contentType: "application/json; charset=utf-8",
        data: JSON.stringify(body),
        success: function(msgGames) {
-        $.ajax({
-            type: "POST",
-            url: "/findActionByDate",
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify(body),
-            success: function(msgActions) {
+        // $.ajax({
+        //     type: "POST",
+        //     url: "/findLogResultsByDate",
+        //     contentType: "application/json; charset=utf-8",
+        //     data: JSON.stringify(body),
+        //     success: function(msgResults) {
+
+            console.log("HALLO")
+
+                var totalGames = msgGames.total;
+                var resultsGames = msgGames.results;
+                var distinctGamesEventsIds = Array.from(new Set(resultsGames.map(g=>g.logGame.eventId)))
+
+                console.log("xxx " + distinctGamesEventsIds.slice(0,320));
+
+                var bodySearch = {
+                    eventIds: distinctGamesEventsIds.slice(0,320),// [28655556,28654454],
+                    month: 1
+                }
                 $.ajax({
                     type: "POST",
-                    url: "/findLogResultsByDate",
+                    url: "/searchByEventId",
                     contentType: "application/json; charset=utf-8",
-                    data: JSON.stringify(body),
-                    success: function(msgResults) {
+                    data: JSON.stringify(bodySearch),
+                    success: function(msgSearch) {
 
-                        var totalGames = msgGames.total;
-                        var resultsGames = msgGames.results;
-                        var distinctGamesEventsIds = Array.from(new Set(resultsGames.map(g=>g.logGame.eventId)))
+//                 var totalResults = msgResults.total;
+//                 var resultsResults = msgResults.results; 
+//                 var distinctResultsEventsIds = Array.from(new Set(resultsResults.map(r=>r.logResult[0].eventId)))
+                              
 
-                        var totalActions = msgActions.total;
-                        var resultsActions = msgActions.results;
-                        var distinctActionsEventsIds = Array.from(new Set(resultsActions.map(a=>a.eventId)))
-                        var successfulActions = resultsActions.filter(a => a.betStatus.status == "SUCCESS");
+//                 var result = resultsGames.map ( game => {
+                    
+//                     var eventId = game.logGame.eventId;
+//                     var name1 = game.logGame.runners.runner1Name;
+//                     var name2 = game.logGame.runners.runner2Name;
+//                     var selection1 = game.logGame.runners.runner1SelectionId;
+//                     var selection2 = game.logGame.runners.runner2SelectionId;
+//                     var selectionDraw = game.logGame.runners.drawSelectionId;
+//                     var winner = findResult(eventId, resultsResults);
 
-                        var totalResults = msgResults.total;
-                        var resultsResults = msgResults.results; 
-                        var distinctResultsEventsIds = Array.from(new Set(resultsResults.map(r=>r.logResult[0].eventId)))                     
-                        /// CALCULATE, THIS IS IMPORTANT
-                        var resultsMissing = 0;
-                        ///
-
-                        var array3 = distinctResultsEventsIds.filter(function(obj) { return distinctGamesEventsIds.indexOf(obj) == -1; });
-                        var gizmo = "Games: " + distinctGamesEventsIds + "<br>Results: " + distinctResultsEventsIds + "<br>Different: " + array3
-                      
-                        /// NOT IN USE, BUT CAN BE JOINED THIS WAY
-                        var gamesActions = resultsGames.map(game => {
-                            try { var action = successfulActions.filter(action => action.eventId == game.logGame.eventId)[0]; } 
-                            catch(e) { var action = ""; }
-                            return {
-                                game: game,
-                                action: action
-                            };
-                        });
-                        ///
-
-                        var output = "Total games: " + totalGames + "<br>"
-                        output = output + "Total games distinct: " + distinctGamesEventsIds.length + "<br><br>"
-
-                        output = output + "Total results: " + totalResults + "<br>"
-                        output = output + "Total results distinct: " + distinctResultsEventsIds.length + "<br><br>"
-
-                        output = output + "Total actions: " + totalActions + "<br>"
-                        output = output + "Total actions distinct: " + distinctActionsEventsIds.length + "<br><br>"
-                        output = output + "Total successful actions: " + successfulActions.length + "<br>"
-
-                        // var homeWinners = 0;
-                        // var awayWinners = 0;
-                        // var drawWinners = 0;
-
-                        // var lostBets80 = 0;
-
-                        // var data = resultsGames.map(rg => {
-                        //     // get winner
-                        //     try { 
-                        //         var winnerSelectionId = resultsResults
-                        //         .find(rr => (rr.logResult[0].eventId == rg.logGame.eventId)).logResult[0].item.runners
-                        //         .map(r => { if (r.status == "WINNER") return r.selectionId })
-                        //         .join(''); 
-                        //     } catch(e) { 
-                        //         resultsMissing ++; 
-                        //         var winnerSelectionId = ""; 
-                        //     };
-                        //     // home or away
-                        //     if (rg.logGame.runners.runner1SelectionId == winnerSelectionId) homeWinners++;
-                        //     if (rg.logGame.runners.runner2SelectionId == winnerSelectionId) awayWinners++;
-                        //     if (rg.logGame.runners.drawSelectionId == winnerSelectionId) drawWinners++;
+//                     return {
+//                         eventId: eventId,
+//                         name1: name1,
+//                         name2: name2,
+//                         selection1: selection1,
+//                         selection2: selection2,
+//                         selectionDraw: selectionDraw,
+//                         WINNER: winner,
+//                         };
+//                     }
+//                 );
+                    
 
 
-                        //     // placed 80 min bets
-                        //     // placed
-                        //     try { 
-                        //         var placedSelectionId80 = resultsActions.find(ra => ra.eventId == rg.logGame.eventId && ra.elapsedTime >= 75 && ra.elapsedTime <= 85).selectionId;
-                        //         var placedEventId80xxx = resultsActions.find(ra => ra.eventId == rg.logGame.eventId).eventId;
-                        //     } catch(e) { 
-                        //         var placedSelectionId80 = ""; 
-                        //         var placedEventId80xxx = "c"; 
-                        //     };
-                        //     // lost
-                        //     if (placedSelectionId80 != "" && winnerSelectionId != "" && winnerSelectionId != placedSelectionId80) {
-                        //         lostBets80++
-                        //         lostBets80Color = "red";
-                        //     } else {
-                        //         lostBets80Color = "white";
-                        //     }
 
-                        //     // data to render output
-                        //     return {
-                        //         eventId: rg.logGame.eventId,
-                        //         runner1SelectionId: rg.logGame.runners.runner1SelectionId,
-                        //         runner2SelectionId: rg.logGame.runners.runner2SelectionId,
-                        //         drawSelectionId: rg.logGame.runners.drawSelectionId,
-                        //         winnerSelectionId: winnerSelectionId,
-                        //         placedSelectionId80: placedSelectionId80,
-                        //         lostBets80Color: lostBets80Color,
-                        //         placedEventId80xxx: placedEventId80xxx
-                        //     }
-                        // });
+                var output = "Total games: " + totalGames + "<br>"
+                output = output + "Total games ids distinct: " + distinctGamesEventsIds.length + "<br><br>"
+                output = output + "Search: " + JSON.stringify(msgSearch) + "<br><br>"
 
-                        // /////////////////////////////////////////////////////////////////////////////////
-                        // // results
-                        // var gamesWithResults = totalGames - resultsMissing;
-                        // var homeWinnersPer = Math.round((homeWinners * 100 / gamesWithResults),0); 
-                        // var awayWinnersPer = Math.round((awayWinners * 100 / gamesWithResults),0); 
-                        // var drawWinnersPer = Math.round((drawWinners * 100 / gamesWithResults),0);
+                
 
-                        // // 80min
-                        // var count80min = 0;
-                        // data.map(d => { if (d.placedSelectionId80 != "") { count80min++; } });
-                        // //var b = data.map(d => { if (d.placedEventId80xxx != "") { d.placedEventId80xxx; } });
-                        // var b = JSON.stringify(data.map(d => d.placedEventId80xxx).filter(x=>x !="c")); 
-                        
+//                 output = output + "Total results: " + totalResults + "<br>"
+//                 output = output + "Total results ids distinct: " + distinctResultsEventsIds.length + "<br><br>"
 
-                        // // OUTPUT RENDERING
-                        // var games = data.map(x =>
-                        //     "<tr><td>" 
-                        //     + x.eventId + "</td><td>"
-                        //     + x.runner1SelectionId + "<br>"
-                        //     + x.runner2SelectionId + "<br>"
-                        //     + x.drawSelectionId + "</td><td>"
-                        //     + x.winnerSelectionId + "</td><td style='background-color:" + x.lostBets80Color + ";'>"
-                        //     + x.placedSelectionId80 + "</td></tr>"
-                        // );
+//                 output = output + "result: " + JSON.stringify(result) + "<br><br>"
 
-                        // var output = "<table><tr><td class='texttable'>"
-                        // output = output + "Total games: " + totalGames + "<br>";
-                        // output = output + "Total bets: " + totalActions + "<br>";
-                        // output = output + "Results missing: " + resultsMissing + "<br>";
-                        // output = output + "Games with results: " + gamesWithResults + "<br>";
-                        // output = output + "Home Winners: " + homeWinnersPer + "%<br>";
-                        // output = output + "Away Winners: " + awayWinnersPer + "%<br>";
-                        // output = output + "Draw Winners: " + drawWinnersPer + "%</td><td class='texttable'>";
 
-                        // output = output + "Total 80min bets: " + count80min + "<br>";
-                        // output = output + "Lost 80min bets: " + lostBets80 + "<br>";
-
-                        // output = output + "</td></tr></table>";
-                        
-                        // output = output + "<table><tr><th>eventId</th><th>selections</th><th>winner</th><th>@80min</th></tr>"
-                        // output = output + games;
-                        // output = output + "</table>"
-
-                         $('#output').html(gizmo);
-
-        }});     
-    }});     
-}});
+                $('#output').html(output);
+ 
+        },
+        timeout: 3000000});
+    }});
 }

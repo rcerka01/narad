@@ -12,6 +12,7 @@
     "body-parser": "^1.18.2",
     "ejs": "latest",
     "express": "latest",
+    "moment": "^2.22.0",
     "mongoose": "latest",
     "unirest": "latest"
   }
