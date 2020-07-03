@@ -7,6 +7,8 @@ function getBets(start, end) {
             data: JSON.stringify(body),
             success: function(msgActions) { 
 
+
+                
                 // all bets
                 var resultsActions = msgActions.results.reverse();
                 var totalActions = msgActions.total;
@@ -38,18 +40,18 @@ function getBets(start, end) {
                         resultsActions[i].color = "#ff8080";
                     }
 
-                    if ((resultsActions[i].results).length == 0) {
-                        noResultCount++;
-                        resultsActions[i].color = "yellow";
-                    }
+                    // if ((resultsActions[i].results).length == 0) {
+                    //     noResultCount++;
+                    //     resultsActions[i].color = "yellow";
+                    // }
 
-                    if (resultsActions[i].results.split(" ")[1] == "unknown") {
-                        unknownCount++;
-                        resultsActions[i].color = "brown";
-                    } else if (resultsActions[i].results.split(" ")[1] != resultsActions[i].selectionId && resultsActions[i].results.length != 0) {
-                        lostCount++;
-                        resultsActions[i].color = "red";
-                    }
+                    // if (resultsActions[i].results.split(" ")[1] == "unknown") {
+                    //     unknownCount++;
+                    //     resultsActions[i].color = "brown";
+                    // } else if (resultsActions[i].results.split(" ")[1] != resultsActions[i].selectionId && resultsActions[i].results.length != 0) {
+                    //     lostCount++;
+                    //     resultsActions[i].color = "red";
+                    // }
                 }
   
                 var chartData = [
@@ -61,6 +63,7 @@ function getBets(start, end) {
                     lostCount,
                     unknownCount];
                 drawBetsGraph("betsGraph", chartData);
+
 
                 // output
                 var output = 

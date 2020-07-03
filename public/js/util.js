@@ -239,6 +239,8 @@ function accountChart(div, balance, exposure, times, total) {
       ]
     },
     options: {
+      width: 80,
+      width_units: '%',
       title: {
         display: true,
         text: 'Account'
@@ -279,6 +281,8 @@ function accountProfitChart(div, times, total) {
       ]
     },
     options: {
+      width: 80,
+      width_units: '%',
       title: {
         display: true,
         text: 'Account Status'
@@ -298,8 +302,8 @@ function drawStatsGraph(div, data) {
     } 
     //insert canvas
     var newDiv = document.createElement('canvas');
-    newDiv.setAttribute("width","800");
-    newDiv.setAttribute("height","300");
+  //  newDiv.setAttribute("width","800");
+  //  newDiv.setAttribute("height","300");
     in_canvas.appendChild(newDiv);
     newDiv.id = div;
     // <-
@@ -394,13 +398,18 @@ function betsTable(resultsActions) {
   + "<thead>"
       + "<tr>"
           + "<th>Date</th>"
-          + "<th>Event Id</th>"
-          + "<th>Event</th>"
+          + "<th>Home</th>"
+          + "<th>Away</th>"
+          + "<th>Time</th>"
           + "<th>Bet On</th>"
-          + "<th>Elapsed Time</th>"
-          + "<th>Back</th>"
-          + "<th>Winner</th>"
+          + "<th>Odd</th>"
+          + "<th>Bet</th>"
+          + "<th>Profit</th>"
+          + "<th>Event</th>"
+          + "<th>Type</th>"
+          + "<th>Game</th>"
           + "<th>Status</th>"
+          + "<th>Result</th>"
           + "<th></th>"
           + "<th></th>"
       + "</tr>"
@@ -409,29 +418,79 @@ function betsTable(resultsActions) {
 
   var outputBody = "";
   var errorCode = "";
+
   for (var ii in resultsActions) {
 
     // add error code for failed bets
     if (resultsActions[ii].betStatus.status == "FAILURE") {
-      errorCode = "<br>" + resultsActions[ii].betStatus.instructionReports.errorCode
+      errorCode = "<br>" + JSON.parse(resultsActions[ii].betStatus.instructionReports).errorCode;
+    } else {
+      errorCode = "";
+    }
+    
+    // game name split to eams
+    var teams = resultsActions[ii].gameName.split(" v ")
+
+    // bet on home or away
+    if (resultsActions[ii].placedOn == teams[0]) {
+      var home = "<br>- home -"; }
+    else {
+      var home = "<br>- away -";
     }
 
-    // add color to the row
-    try { var color = resultsActions[ii].color; } catch(e) { var color = ""; }
+    // detect winner
+    try { 
+      var score = "<br>" + resultsActions[ii].score.home.score + " : " + resultsActions[ii].score.away.score;
+      var resultDiv =  resultsActions[ii].score.home.score - resultsActions[ii].score.away.score 
+    } catch(e) { 
+      var resultDiv = 999; 
+      var score = "<br>unknown"; 
+    }
+    
+    if ( resultDiv == 999) 
+      { var winer = "unknown"; }
+    else if ( resultDiv > 0) 
+      { var winer = teams[0]; }
+    else if ( resultDiv < 0) 
+      { var winer = teams[1]; }
+    else { var winer = "The Draw"; }  
 
-    var teams = resultsActions[ii].gameName.split(" v ")
+    // add color to the row
+    var color = "";
+    // successfuly placed
+    if (resultsActions[ii].betStatus.status == "SUCCESS")
+     { var color = "#CCFFCC"; }
+     // lost
+    if (winer.toUpperCase() != resultsActions[ii].placedOn.toUpperCase() && winer != "unknown") 
+     { var color = "#FFCCCC"; }
+     // error state
+    if (winer == "unknown") 
+     { var color = "#CCFFFF"; }
+     // in play
+    if (resultsActions[ii].betStatus.status == "SUCCESS" && resultsActions[ii].gameStatus == "IN_PLAY") 
+     { var color = "#FFFFCC"; }
+
+    var price = resultsActions[ii].price;
+    var sum = resultsActions[ii].sum;
+    var type = resultsActions[ii].type;
+    var profit = price * sum - sum;
 
     outputBody = outputBody 
       + "<tr style='background-color:" + color + ";'>"
-      + "<td>" + moment(dateFromObjectId(resultsActions[ii]._id)).format('llll') + "</td>"
-      + "<td>" + resultsActions[ii].eventId + "</td>"
-      + "<td>" + resultsActions[ii].gameName + "</td>"
-      + "<td>" + resultsActions[ii].vinner + "<br>" + resultsActions[ii].selectionId + "</td>"
+      + "<td>" + moment(dateFromObjectId(resultsActions[ii]._id)).format('H:mm:ss DD/MM/YYYY') + "</td>"
+      + "<td>" + teams[0] + "</td>"
+      + "<td>" + teams[1] + "</td>"
       + "<td>" + resultsActions[ii].elapsedTime + "</td>"
-      + "<td>" + resultsActions[ii].back + "</td>"
-      + "<td>" + resultsActions[ii].results + "</td>"
+      + "<td>" + resultsActions[ii].placedOn + home + "</td>"
+      + "<td>" + price + "</td>"
+      + "<td>" + sum + "</td>"
+      + "<td>" + profit.toFixed(2) + "</td>"
+      + "<td>" + resultsActions[ii].eventId + "</td>"
+      + "<td>" + type + "</td>"
+      + "<td>" + resultsActions[ii].gameStatus + "</td>"
       + "<td>" + resultsActions[ii].betStatus.status + errorCode + "</td>"
-      + "<td><a href='/game?eventId=" + resultsActions[ii].eventId + "' target='_blank'>GAME STATS</a></td>"
+      + "<td>" + winer + score + "</td>"
+      + "<td><a href='/game?eventId=" + resultsActions[ii].eventId + "' target='_blank'>STATS</a></td>"
       + "<td><a href='/search?" 
             + "team1=" + teams[0] 
             + "&team2=" + teams[1] 
@@ -494,7 +553,7 @@ var myChart = new Chart(ctx, {
               'rgba(54, 162, 235, 1)',
               'rgba(54, 162, 235, 1)'
             ],
-            width: 100,
+            //width: 100,
             borderWidth: 1
         }]
     },
