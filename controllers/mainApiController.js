@@ -1,5 +1,5 @@
-var bodyParser = require('body-parser')
-var action = require("../models/Action").dataset;
+var bodyParser = require('body-parser');
+var bet = require("../models/Bet").dataset;
 var logAccount = require("../models/LogAccount").dataset;
 var logGame= require("../models/LogGame").dataset;
 var logMarket = require("../models/LogMarket").dataset;
@@ -49,7 +49,7 @@ module.exports = { run: function (app) {
 
         var sort = req.body.sort;
         var subset = req.body.subset;    
-        action.find(find).sort(sort).exec(function (err, results) {
+        bet.find(find).sort(sort).exec(function (err, results) {
            
             if (err) console.log("EXCEPTION IN FIND ACTION QUERY: " + err);
             

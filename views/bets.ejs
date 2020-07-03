@@ -25,13 +25,14 @@
     <!-- Include Date Range Picker --> 
     <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
 
-    <!-- for chart graph -->
+    <!-- for chart graph 
     <style>
       canvas {
         width:800px !important;
         height:300px !important;
       }
     </style> 
+  -->
 
   </head>
   <body>
@@ -75,7 +76,7 @@
       </div>
 
       <div id="betsGraph-holder">
-        <canvas id="betsGraph" width="100" height="100"></canvas>
+        <canvas id="betsGraph"></canvas>
       </div>
 
       <div id="output"></div>
@@ -93,7 +94,7 @@
         $(document).ready( function() { 
           // getBets is a function
           datePicker(getBets);
-        });     
+        }); 
       </script>
 
     </div>
