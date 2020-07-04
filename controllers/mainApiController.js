@@ -1,7 +1,7 @@
 var bodyParser = require('body-parser');
 var bet = require("../models/Bet").dataset;
 var account = require("../models/Account").dataset;
-var logGame= require("../models/LogGame").dataset;
+var vishnu = require("../models/Vishnu").dataset;
 var logMarket = require("../models/LogMarket").dataset;
 var logResult = require("../models/LogResult").dataset;
 var logStatus = require("../models/LogStatus").dataset;
@@ -114,7 +114,7 @@ module.exports = { run: function (app) {
     });
 
     // LOG GAME BY DATE
-    app.post("/findLogGameByDate", function(req, res) {
+    app.post("/findGameByDate", function(req, res) {
     
         var start = req.body.start;
         var end = req.body.end;
@@ -128,15 +128,13 @@ module.exports = { run: function (app) {
              _id: {
                     $gte: ObjectId(Math.floor(start/1000).toString(16) + "0000000000000000"), 
                     $lte: ObjectId(Math.floor(end/1000).toString(16) + "0000000000000000")
-                },
-                "logGame.runners.runner1Name": command1Js,
-                "logGame.runners.runner2Name": command2Js
+                }
             };
 
         var sort = req.body.sort;
         var subset = req.body.subset;  
           
-        logGame.find(find).sort(sort).exec(function (err, results) {
+        vishnu.find(find).sort(sort).exec(function (err, results) {
             
             if (err) console.log("EXCEPTION IN FIND LOGG GAME QUERY: " + err);
             

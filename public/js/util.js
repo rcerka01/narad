@@ -348,16 +348,24 @@ function drawStatsGraph(div, data) {
 }
 
 //###################################################################################
-function gamesTable(resultsGames) {
+function gamesTable(results) {
+
   var outputTop = 
     "<table class='table table-striped' style='font-size:8px;'>"
     + "<thead>"
         + "<tr>"
-            + "<th>Event ID</th>"
-            + "<th>Start Time</th>"
-            + "<th>Game</th>"
-            + "<th>Competition</th>"
-            + "<th>Country</th>"
+            + "<th>Start</th>"
+            + "<th>Home</th>"
+            + "<th>Away</th>"
+            + "<th>Score</th>"
+            + "<th>Points</th>"
+            + "<th>Id</th>"
+            + "<th>Corners</th>"
+            + "<th>1.</th>"
+            + "<th>2.</th>"
+            + "<th>Cards</th>"
+            + "<th>Yellow</th>"
+            + "<th>Red</th>"
             + "<th></th>"
             + "<th></th>"
         + "</tr>"
@@ -365,18 +373,53 @@ function gamesTable(resultsGames) {
     + "<tbody>";      
 
   var outputBody = "";
-  for (var i in resultsGames) {
-  outputBody = outputBody
+  for (var i in results) {
+    try { 
+      var homeScore = results[i].score.home.score;
+      var awayScore = results[i].score.away.score;
+      var home = results[i].score.home.name;
+      var away = results[i].score.away.name;
+      var bp = results[i].score.bookingPoints;
+      var c = results[i].score.numberOfCorners;
+      var c1 = results[i].score.numberOfCornersFirstHalf;
+      var c2 = results[i].score.numberOfCornersSecondHalf;
+      var cards = results[i].score.numberOfCards;
+      var yellow = results[i].score.numberOfYellowCards;
+      var red = results[i].score.numberOfRedCards;
+    } catch(e) { 
+      var homeScore = "unknown";
+      var awayScore = "unknown";
+      var home = "unknown";
+      var away = "unknown";
+      var bp = "unknown";
+      var c = "unknown";
+      var c1 = "unknown";
+      var c2 = "unknown";
+      var cards = "unknown";
+      var yellow = "unknown";
+      var red = "unknown";
+    }
+
+    outputBody = outputBody
     + "<tr>"
-      + "<td>" + resultsGames[i].logGame.eventId + "</td>"
-      + "<td>" + resultsGames[i].logGame.startTime.slice(0, -5).replace("T", " ") + "</td>"
-      + "<td>" + resultsGames[i].logGame.eventName + "</td>"
-      + "<td>" + resultsGames[i].logGame.competitionName + "</td>"
-      + "<td>" + resultsGames[i].logGame.countryCode + "</td>"
-      + "<td><a href='/game?eventId=" + resultsGames[i].logGame.eventId + "' target='_blank'>GAME STATS</a></td>"
-      + "<td><a href='/search?" 
-            + "team1=" + resultsGames[i].logGame.runners.runner1Name 
-            + "&team2=" + resultsGames[i].logGame.runners.runner2Name 
+    + "<td>" + moment(dateFromObjectId(results[i]._id)).subtract(results[i].timeElapsed, 'minutes').format('H:mm:ss DD/MM/YYYY') + "</td>"
+    + "<td>" + home + "</td>"
+    + "<td>" + away + "</td>"
+    + "<td>" + homeScore + " : " + awayScore + "</td>"
+    + "<td>" + bp + "</td>"
+    + "<td>" + results[i].eventId + "</td>"
+    + "<td>" + c + "</td>"
+    + "<td>" + c1 + "</td>"
+    + "<td>" + c2 + "</td>"
+    + "<td>" + cards + "</td>"
+    + "<td>" + yellow + "</td>"
+    + "<td>" + red + "</td>"
+    + "<td>" + results[i].status + "</td>"
+    + "<td>" + results[i].status + "</td>"
+    + "<td><a href='/game?eventId=" + results[i].eventId + "' target='_blank'>GAME STATS</a></td>"
+    + "<td><a href='/search?" 
+            + "team1=" + results[i].score.home.name 
+            + "&team2=" + results[i].score.away.name
             + "' target='_blank'>SEARCH</a></td>"
     + "</tr>";
   }
