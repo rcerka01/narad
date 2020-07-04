@@ -2,7 +2,7 @@ function getAccount(start, end) {
     var body = { start: start+"", end: end+"" };
     $.ajax({
        type: "POST",
-       url: "/findLogAccountByDate",
+       url: "/findAccountByDate",
        contentType: "application/json; charset=utf-8",
        data: JSON.stringify(body),
        success: function(msg) { 
@@ -17,9 +17,9 @@ function getAccount(start, end) {
 
           results.map(item => 
             {
-                balance.push(item.logAccount.available_to_bet);
-                exposure.push(item.logAccount.exposure);
-                total.push(item.logAccount.available_to_bet - item.logAccount.exposure) 
+                balance.push(item.account.available_to_bet);
+                exposure.push(item.account.exposure);
+                total.push(item.account.available_to_bet - item.account.exposure) 
                 times.push(moment(dateFromObjectId(item._id)).format("dd Do, hA"));
             });
 
@@ -29,11 +29,17 @@ function getAccount(start, end) {
           if (total.length > 0) {
             var profit = (total[total.length-1] - total[0]).toFixed(2);
             var output = 
-            "<hr>" 
+            +"<hr>" 
             + "<h4>TOTAL</h4>"
-            + "Start: <strong>" + total[0].toFixed(2) + "</strong>,  "
-            + "End: <strong>" + total[total.length-1].toFixed(2) + "</strong>  "
-            + "Profit: <strong><span style='color:red;'>" + profit + "£</span></strong>"
+            + "Start Today: <strong>" + total[0].toFixed(2) + "</strong>,  "
+            + "Profit Today: <strong>" + profit + "</strong>, "
+            + "Current Status: <strong><span style='color:red;'>" + total[total.length-1].toFixed(2) + "£</span></strong><br>  "
+            + "Exposure: <strong><span style='color:red;'>" + results[results.length-1].account.exposure + "£</span></strong><br>  "
+            + "Points: <strong>" + results[results.length-1].account.points + "</strong>, "
+            + "Commision <strong>" + results[results.length-1].account.commision + "</strong>, "
+            + "Discount: <strong>" + results[results.length-1].account.discount + "</strong>, "
+            + "Exposure Limit: <strong>" + results[results.length-1].account.exposure_limit+ "</strong>, "
+            $('#output').html(output);
             $('#output').html(output);
           } else {
             $('#output').html("");

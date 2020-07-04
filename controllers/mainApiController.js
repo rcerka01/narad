@@ -1,6 +1,6 @@
 var bodyParser = require('body-parser');
 var bet = require("../models/Bet").dataset;
-var logAccount = require("../models/LogAccount").dataset;
+var account = require("../models/Account").dataset;
 var logGame= require("../models/LogGame").dataset;
 var logMarket = require("../models/LogMarket").dataset;
 var logResult = require("../models/LogResult").dataset;
@@ -74,7 +74,7 @@ module.exports = { run: function (app) {
     });
 
     // LOG ACCOUNT BY DATE
-    app.post("/findLogAccountByDate", function(req, res) {
+    app.post("/findAccountByDate", function(req, res) {
 
         var start = req.body.start;
         var end = req.body.end;
@@ -89,7 +89,7 @@ module.exports = { run: function (app) {
 
         var sort = req.body.sort;
         var subset = req.body.subset;    
-        logAccount.find(find).sort(sort).exec(function (err, results) {
+        account.find(find).sort(sort).exec(function (err, results) {
             
             if (err) console.log("EXCEPTION IN FIND LOGG ACCOUNT QUERY: " + err);
             

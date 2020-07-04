@@ -209,8 +209,6 @@ function accountChart(div, balance, exposure, times, total) {
   } 
 	//insert canvas
   var newDiv = document.createElement('canvas');
-  newDiv.setAttribute("width","1100");
-  newDiv.setAttribute("height","400");
   in_canvas.appendChild(newDiv);
   newDiv.id = div;
   // <-
@@ -261,8 +259,6 @@ function accountProfitChart(div, times, total) {
   } 
 	//insert canvas
   var newDiv = document.createElement('canvas');
-  newDiv.setAttribute("width","1100");
-  newDiv.setAttribute("height","400");
   in_canvas.appendChild(newDiv);
   newDiv.id = div;
   // <-
