@@ -29,7 +29,7 @@ function getAccount(start, end) {
           if (total.length > 0) {
             var profit = (total[total.length-1] - total[0]).toFixed(2);
             var output = 
-            +"<hr>" 
+            "<hr>" 
             + "<h4>TOTAL</h4>"
             + "Start Today: <strong>" + total[0].toFixed(2) + "</strong>,  "
             + "Profit Today: <strong>" + profit + "</strong>, "
