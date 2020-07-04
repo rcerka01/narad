@@ -32,7 +32,7 @@ function getBets(start, end) {
                     
                     try { var betStatus = resultsActions[i].betStatus.status } catch(e) { var betStatus = "undefined" }
                     if ( betStatus == "SUCCESS") {
-                        onePoundProfit = onePoundProfit + (resultsActions[i].back - 1);
+                        onePoundProfit = onePoundProfit + (resultsActions[i].price - 1);
                         successfulCount++;
                     }
                     if ( betStatus == "FAILURE" && resultsActions[i].back > 0) {
@@ -54,14 +54,21 @@ function getBets(start, end) {
                     // }
                 }
   
-                var chartData = [
-                    totalActions,
-                    successfulCount,
-                    zeroBetCount, 
-                    otherFailCount, 
-                    noResultCount,
-                    lostCount,
-                    unknownCount];
+                // var chartData = [
+                //     totalActions,
+                //     successfulCount,
+                //     zeroBetCount, 
+                //     otherFailCount, 
+                //     noResultCount,
+                //     lostCount,
+                //     unknownCount];
+
+                    var chartData = [
+                        totalActions,
+                        successfulCount,
+                        totalActions,
+                        successfulCount,
+                        successfulCount];
                 drawBetsGraph("betsGraph", chartData);
 
 

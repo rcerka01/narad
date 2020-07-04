@@ -392,7 +392,7 @@ function gamesTable(resultsGames) {
 
 //###################################################################################
 
-function betsTable(resultsActions) {
+function betsTable(results) {
   var outputTop = 
   "<table class='table table-striped' style='font-size:8px;'>"
   + "<thead>"
@@ -419,20 +419,20 @@ function betsTable(resultsActions) {
   var outputBody = "";
   var errorCode = "";
 
-  for (var ii in resultsActions) {
+  for (var ii in results) {
 
     // add error code for failed bets
-    if (resultsActions[ii].betStatus.status == "FAILURE") {
-      errorCode = "<br>" + JSON.parse(resultsActions[ii].betStatus.instructionReports).errorCode;
+    if (results[ii].betStatus.status == "FAILURE") {
+      errorCode = "<br>" + JSON.parse(results[ii].betStatus.instructionReports).errorCode;
     } else {
       errorCode = "";
     }
     
     // game name split to eams
-    var teams = resultsActions[ii].gameName.split(" v ")
+    var teams = results[ii].gameName.split(" v ")
 
     // bet on home or away
-    if (resultsActions[ii].placedOn == teams[0]) {
+    if (results[ii].placedOn == teams[0]) {
       var home = "<br>- home -"; }
     else {
       var home = "<br>- away -";
@@ -440,8 +440,8 @@ function betsTable(resultsActions) {
 
     // detect winner
     try { 
-      var score = "<br>" + resultsActions[ii].score.home.score + " : " + resultsActions[ii].score.away.score;
-      var resultDiv =  resultsActions[ii].score.home.score - resultsActions[ii].score.away.score 
+      var score = "<br>" + results[ii].score.home.score + " : " + results[ii].score.away.score;
+      var resultDiv =  results[ii].score.home.score - results[ii].score.away.score 
     } catch(e) { 
       var resultDiv = 999; 
       var score = "<br>unknown"; 
@@ -458,39 +458,39 @@ function betsTable(resultsActions) {
     // add color to the row
     var color = "";
     // successfuly placed
-    if (resultsActions[ii].betStatus.status == "SUCCESS")
-     { var color = "#CCFFCC"; }
-     // lost
-    if (winer.toUpperCase() != resultsActions[ii].placedOn.toUpperCase() && winer != "unknown") 
-     { var color = "#FFCCCC"; }
-     // error state
-    if (winer == "unknown") 
-     { var color = "#CCFFFF"; }
-     // in play
-    if (resultsActions[ii].betStatus.status == "SUCCESS" && resultsActions[ii].gameStatus == "IN_PLAY") 
-     { var color = "#FFFFCC"; }
+    if (results[ii].betStatus.status == "SUCCESS")
+      { var color = "#CCFFCC"; }
+    // lost
+    if (winer.toUpperCase() != results[ii].placedOn.toUpperCase() && winer != "unknown") 
+      { var color = "#FFCCCC"; }
+    // in play
+    if (results[ii].betStatus.status == "SUCCESS" && results[ii].gameStatus == "IN_PLAY") 
+      { var color = "#FFFFCC"; }
+    // error state
+    if (winer == "unknown" && moment(dateFromObjectId(results[ii]._id)).isBefore(moment().subtract(30, 'minutes')))
+      { var color = "#CCFFFF"; }
 
-    var price = resultsActions[ii].price;
-    var sum = resultsActions[ii].sum;
-    var type = resultsActions[ii].type;
+    var price = results[ii].price;
+    var sum = results[ii].sum;
+    var type = results[ii].type;
     var profit = price * sum - sum;
 
     outputBody = outputBody 
       + "<tr style='background-color:" + color + ";'>"
-      + "<td>" + moment(dateFromObjectId(resultsActions[ii]._id)).format('H:mm:ss DD/MM/YYYY') + "</td>"
+      + "<td>" + moment(dateFromObjectId(results[ii]._id)).format('H:mm:ss DD/MM/YYYY') + "</td>"
       + "<td>" + teams[0] + "</td>"
       + "<td>" + teams[1] + "</td>"
-      + "<td>" + resultsActions[ii].elapsedTime + "</td>"
-      + "<td>" + resultsActions[ii].placedOn + home + "</td>"
+      + "<td>" + results[ii].elapsedTime + "</td>"
+      + "<td>" + results[ii].placedOn + home + "</td>"
       + "<td>" + price + "</td>"
       + "<td>" + sum + "</td>"
       + "<td>" + profit.toFixed(2) + "</td>"
-      + "<td>" + resultsActions[ii].eventId + "</td>"
+      + "<td>" + results[ii].eventId + "</td>"
       + "<td>" + type + "</td>"
-      + "<td>" + resultsActions[ii].gameStatus + "</td>"
-      + "<td>" + resultsActions[ii].betStatus.status + errorCode + "</td>"
+      + "<td>" + results[ii].gameStatus + "</td>"
+      + "<td>" + results[ii].betStatus.status + errorCode + "</td>"
       + "<td>" + winer + score + "</td>"
-      + "<td><a href='/game?eventId=" + resultsActions[ii].eventId + "' target='_blank'>STATS</a></td>"
+      + "<td><a href='/game?eventId=" + results[ii].eventId + "' target='_blank'>STATS</a></td>"
       + "<td><a href='/search?" 
             + "team1=" + teams[0] 
             + "&team2=" + teams[1] 
@@ -514,46 +514,38 @@ function drawBetsGraph(div, data) {
   } 
   //insert canvas
   var newDiv = document.createElement('canvas');
-  newDiv.setAttribute("width","800");
-  newDiv.setAttribute("height","300");
   in_canvas.appendChild(newDiv);
   newDiv.id = div;
   // <-
 
-var ctx = document.getElementById(div).getContext('2d');
-var myChart = new Chart(ctx, {
+  var ctx = document.getElementById(div).getContext('2d');
+  var myChart = new Chart(ctx, {
     type: 'bar',
     data: {
         labels: [
-          "All Bets", 
-          "Successful Bets",
-          "Failed Zero Back Price Bets", 
-          "Other Failed Bets", 
-          "No Results",
-          "Lost Bets",
-          "Unknown Result"
+          "All", 
+          "Successful",
+          "Failed", 
+          "Lost",
+          "Error"
         ],
         datasets: [{
             label: 'Bets',
             data: data,
             backgroundColor: [
-              'rgba(54, 162, 235, 0.2)',
+              '#FFFFFF',
+              '#CCFFCC',
               '#D3D3D3',
-              'pink',
-              '#ff8080',
-              'yellow',
-              'red',
-              'brown'
+              '#FFCCCC',
+              '#CCFFFF'
             ],
             borderColor: [
               'rgba(54, 162, 235, 1)',
               'rgba(54, 162, 235, 1)',
               'rgba(54, 162, 235, 1)',
               'rgba(54, 162, 235, 1)',
-              'rgba(54, 162, 235, 1)',
               'rgba(54, 162, 235, 1)'
             ],
-            //width: 100,
             borderWidth: 1
         }]
     },
