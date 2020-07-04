@@ -2,75 +2,59 @@ function getBets(start, end) {
     var body = { start: start+"", end: end+"" };
         $.ajax({
             type: "POST",
-            url: "/findActionByDate",
+            url: "/findBetByDate",
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify(body),
-            success: function(msgActions) { 
+            success: function(msgBets) { 
 
-
-                
                 // all bets
-                var resultsActions = msgActions.results.reverse();
-                var totalActions = msgActions.total;
+                var results = msgBets.results.reverse();
+                var totalBets = msgBets.total;
 
-                var successfulCount = 0; // grey
-                var zeroBetCount = 0; // pink
-                var otherFailCount = 0; // other red
-                var noResultCount = 0; // yellow
-                var lostCount = 0; // red
-                var unknownCount = 0; // brown
+                var successfulCount = 0;
+                var failureCount = 0;
+                var lostCount = 0;
+                var errorCount = 0;
 
                 var onePoundProfit = 0;
 
                 // decorate and collect totals
-                for (var i in resultsActions) {
+                for (var i in results) {
+                    var teams = results[i].gameName.split(" v ")
 
-                    if (resultsActions[i].back == 0) {
-                        zeroBetCount++;
-                        resultsActions[i].color = "pink";
-                    }
-                    
-                    try { var betStatus = resultsActions[i].betStatus.status } catch(e) { var betStatus = "undefined" }
-                    if ( betStatus == "SUCCESS") {
-                        onePoundProfit = onePoundProfit + (resultsActions[i].price - 1);
-                        successfulCount++;
-                    }
-                    if ( betStatus == "FAILURE" && resultsActions[i].back > 0) {
-                        otherFailCount++;
-                        resultsActions[i].color = "#ff8080";
-                    }
+                    try { 
+                        var resultDiv =  results[i].score.home.score - results[i].score.away.score 
+                      } catch(e) { 
+                        var resultDiv = 999; 
+                      }
+                      
+                    if ( resultDiv == 999) 
+                        { var winer = "unknown"; }
+                    else if ( resultDiv > 0) 
+                        { var winer = teams[0]; }
+                    else if ( resultDiv < 0) 
+                        { var winer = teams[1]; }
+                    else { var winer = "The Draw"; }  
 
-                    // if ((resultsActions[i].results).length == 0) {
-                    //     noResultCount++;
-                    //     resultsActions[i].color = "yellow";
-                    // }
-
-                    // if (resultsActions[i].results.split(" ")[1] == "unknown") {
-                    //     unknownCount++;
-                    //     resultsActions[i].color = "brown";
-                    // } else if (resultsActions[i].results.split(" ")[1] != resultsActions[i].selectionId && resultsActions[i].results.length != 0) {
-                    //     lostCount++;
-                    //     resultsActions[i].color = "red";
-                    // }
+                    if (results[i].betStatus.status == "SUCCESS") {
+                        onePoundProfit = onePoundProfit + (results[i].price - 1);
+                        successfulCount++; }
+                    if (results[i].betStatus.status == "SUCCESS")
+                        { failureCount++; }
+                    if (winer.toUpperCase() != results[i].placedOn.toUpperCase() && winer != "unknown") 
+                        { lostCount++; }
+                    if (winer == "unknown" && moment(dateFromObjectId(results[i]._id)).isBefore(moment().subtract(30, 'minutes')))
+                        { errorCount++; }
                 }
   
-                // var chartData = [
-                //     totalActions,
-                //     successfulCount,
-                //     zeroBetCount, 
-                //     otherFailCount, 
-                //     noResultCount,
-                //     lostCount,
-                //     unknownCount];
+                var chartData = [
+                    totalBets,
+                    successfulCount,
+                    failureCount,
+                    lostCount,
+                    errorCount]
 
-                    var chartData = [
-                        totalActions,
-                        successfulCount,
-                        totalActions,
-                        successfulCount,
-                        successfulCount];
                 drawBetsGraph("betsGraph", chartData);
-
 
                 // output
                 var output = 
@@ -78,7 +62,7 @@ function getBets(start, end) {
                     + "One Pound Bet Proffit: <span style='color:pink;'>" + onePoundProfit.toFixed(2) + "</span>"
                     + "<hr>"
                     + "<h4>ALL BETS</h4>"
-                    + betsTable(resultsActions)
+                    + betsTable(results)
                 
                 $('#output').html(output);
         }});     

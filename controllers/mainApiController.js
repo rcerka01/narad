@@ -34,7 +34,7 @@ module.exports = { run: function (app) {
     });
 
     // ACTION BY DATE
-    app.post("/findActionByDate", function(req, res) {
+    app.post("/findBetByDate", function(req, res) {
 
         var start = req.body.start;
         var end = req.body.end;
