@@ -173,7 +173,6 @@ module.exports = { run: function (app) {
         });
     });
 
-    // // LOG RESULT BY DATE
     app.post("/findLogResultsByDate", function(req, res) {
     
         var start = req.body.start;

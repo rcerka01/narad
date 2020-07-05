@@ -1,207 +1,70 @@
 function getGame(eventId){
-  var body = { find: { "logGame.eventId": eventId } };
+  var body = { find: { "eventId": eventId } };
   $.ajax({
      type: "POST",
-     url: "/findLogGameQuery",
+     url: "/findGamesQuery",
      contentType: "application/json; charset=utf-8",
      data: JSON.stringify(body),
      success: function(msg) {
         var results = msg.results;
 
-        var output =
-        "<hr>" +
-        "<h4>" + results[0].logGame.eventName + "</h4>" +
-        "<hr>" +
-        "<a href='/search?team1=" + results[0].logGame.runners.runner1Name + "&team2=" + results[0].logGame.runners.runner2Name + "' target='_blank'>SEARCH</a>"  
-        "<hr>" +
-        "<p>" + 
-          results[0].logGame.competitionName + " | " + 
-          results[0].logGame.countryCode + " | " + 
-          "<strong>Start:</strong> " + results[0].logGame.startTime.substring(0, 10) + " " + results[0].logGame.startTime.substring(11, 16) +
-        "</p>" +
-        "<table>" +
-          "<tr>" +
-            "<td>" + results[0].logGame.runners.runner1Name + " - " + results[0].logGame.runners.runner1SelectionId + "</td>" +
-            "<td style='padding-left:20px;'>" + "<strong>Home: </strong>" + results[0].logGame.homeName + "</td>" +
-          "</tr>" +
-          "<tr>" +
-            "<td>" + results[0].logGame.runners.runner2Name + " - " + results[0].logGame.runners.runner2SelectionId + "</td>" +
-            "<td style='padding-left:20px;'>" + "<strong>Away: </strong>" + results[0].logGame.awayName + "</td>" +
-          "</tr>" +
-          "<tr>" +              
-            "<td>" + results[0].logGame.runners.drawName + " - " + results[0].logGame.runners.drawSelectionId + "</td>" +
-          "</tr>" +
-        "</table>" +
-        "<span style=font-size:8px;>Taken at: " + dateFromObjectId(results[0]._id) + "</span>";
+        if (results.length > 0) {
 
-        $('#game').html(output);
-    }    
-  }); 
-}
+          var ud = results[0].updateDetails; 
+          var updates = "";
 
-//###################################################################################
-
-function getResult(eventId){
-  var body = { find: { "logResult.eventId": eventId } };
-  $.ajax({
-     type: "POST",
-     url: "/findLogResultQuery",
-     contentType: "application/json; charset=utf-8",
-     data: JSON.stringify(body),
-     success: function(msg) {
-
-        var results = msg.results;
-        var runners = results[0].logResult[0].item.runners;
-
-        var winner = "";
-        for (var i in runners) {
-          if (runners[i].status == "WINNER") {
-            winner = runners[i].selectionId;
+          for (var i in ud) {
+            updates = updates + "<tr><th>" + ud[i].matchTime + "</th><td>" + ud[i].type + "</td><td>" + ud[i].teamName + "</td><td>" + ud[i].team + "</td></tr>";
           }
+
+          var output =
+            "<hr>" +
+            "<h4>" + results[0].score.home.name + " v " + results[0].score.away.name + "</h4>" +
+            "<hr>" +
+            "<a href='/search?team1=" + results[0].score.home.name + "&team2=" + results[0].score.away.name + "' target='_blank'>SEARCH</a>" +
+            "<hr>" +
+            "<table><tr>" +
+            "<th>Id</th><td>" + results[0].eventId + "</td></tr>" +
+            "<th>Score</th><td>" + results[0].score.home.score + " : " + results[0].score.away.score + "</td></tr>" +
+            "<th>Status</th><td>" + results[0].status + "</td></tr>" +
+            "<th>Booking points</th><td>" + results[0].score.bookingPoints + "</td></tr>" +
+            "<th>Corners</th><td>" + results[0].score.numberOfCorners + "</td></tr>" +
+            "<th>Corners 1st half</th><td>" + results[0].score.numberOfCornersFirstHalf + "</td></tr>" +
+            "<th>Corners 2nd half</th><td>" + results[0].score.numberOfCornersSecondHalf + "</td></tr>" +
+            "<th>Cards</th><td>" + results[0].score.numberOfCards + "</td></tr>" +
+            "<th>Yellow</th><td>" + results[0].score.numberOfYellowCards + "</td></tr>" +
+            "<th>Red</th><td>" + results[0].score.numberOfRedCards+ "</td></tr>" +
+            "</table>" +
+
+            "<br>" +
+            "<table>" +
+            "<tr><th></th><th>" + results[0].score.home.name + "</th><th>" + results[0].score.away.name + "</th></tr>" +
+            "<tr><th>Booking points</th><td>" + results[0].score.home.bookingPoints + "</td><td> " + results[0].score.away.bookingPoints + "</td></tr>" +
+            "<tr><th>Corners</th><td>" + results[0].score.home.numberOfCorners + "</td><td> " + results[0].score.away.numberOfCorners + "</td></tr>" +
+            "<tr><th>Corners 1st half</th><td>" + results[0].score.home.numberOfCornersFirstHalf + "</td><td> " + results[0].score.away.numberOfCornersFirstHalf + "</td></tr>" +
+            "<tr><th>Corners 2nd half</th><td>" + results[0].score.home.numberOfCornersSecondHalf + "</td><td> " + results[0].score.away.numberOfCornersSecondHalf + "</td></tr>" +
+            "<tr><th>Cards</th><td>" + results[0].score.home.numberOfCards + "</td><td> " + results[0].score.away.numberOfCards + "</td></tr>" +
+            "<tr><th>Yellow</th><td>" + results[0].score.home.numberOfYellowCards + "</td><td> " + results[0].score.away.numberOfYellowCards + "</td></tr>" +
+            "<tr><th>Red</th><td>" + results[0].score.home.numberOfRedCards + "</td><td> " + results[0].score.away.numberOfRedCards + "</td></tr>" +
+            "<tr><th>Sets</th><td>" + results[0].score.home.sets + "</td><td> " + results[0].score.away.sets + "</td></tr>" +
+            "<tr><th>Games</th><td>" + results[0].score.home.games + "</td><td> " + results[0].score.away.games + "</td></tr>" +
+            "<tr><th>Penalties score</td><td>" + results[0].score.home.penaltiesScore + "</td><td> " + results[0].score.away.penaltiesScore + "</td></tr>" +
+            "<tr><th>Penalties seq</th><td>" + results[0].score.home.penaltiesSequence + "</td><td> " + results[0].score.away.penaltiesSequence + "</td></tr>" +
+            "<tr><th>Half time score</th><td>" + results[0].score.home.halfTimeScore + "</td><td> " + results[0].score.away.halfTimeScore + "</td></tr>" +
+            "<tr><th>Full time score</th><td>" + results[0].score.home.fullTimeScore + "</td><td> " + results[0].score.away.fullTimeScore + "</td></tr>" +
+            "<tr><th>Score</th><td>" + results[0].score.home.score + "</td><td> " + results[0].score.away.score + "</td></tr>" +
+            "</table>" + 
+
+            "<br>" +
+            "<table>" +
+            "<tr><th>Time</th><th>Event</th><th>Team</th><th>Home</th></tr>" +
+            updates +
+            "</table>"
+ 
+            $('#game').html(output);
+        } else {
+          $('#game').html("Can't retrieve the game");
         }
-
-        var output =
-        "<hr>" +        
-        "<h4>" + "WINNER: " + winner  + "</h4>"
-
-        $('#result').html(output);
-    }    
-  }); 
-}
-
-//###################################################################################
-
-function getStats(eventId){
-  var body = { find: { "logStatus.gameStatus.eventId": eventId } };
-  $.ajax({
-     type: "POST",
-     url: "/findLogStatusQuery",
-     contentType: "application/json; charset=utf-8",
-     data: JSON.stringify(body),
-     success: function(msg) {
-
-      var total = msg.total;
-      var results = msg.results;
-
-      // latest stat
-      var lastStat = results.slice(-1).pop();
-
-      try { var homeName = lastStat.logStatus.gameStatus.score.home.name } catch(e) { var homeName = "" }
-      try { var awayName = lastStat.logStatus.gameStatus.score.away.name } catch(e) { var awayName = "" }
-
-      try { var homeScore = lastStat.logStatus.gameStatus.score.home.score } catch(e) { var homeScore = "" }
-      try { var awayScore = lastStat.logStatus.gameStatus.score.away.score } catch(e) { var awayScore = "" }
-
-      try { var numberOfYellowCards = lastStat.logStatus.gameStatus.score.numberOfYellowCards } 
-        catch(e) { var numberOfYellowCards = "-" }
-      try { var numberOfRedCards = lastStat.logStatus.gameStatus.score.numberOfRedCards } 
-        catch(e) { var numberOfRedCards = "-" }
-      try { var numberOfCards = lastStat.logStatus.gameStatus.score.numberOfCards } 
-        catch(e) { var numberOfCards = "-" }
-      try { var numberOfCorners = lastStat.logStatus.gameStatus.score.numberOfCorners } 
-        catch(e) { var numberOfCorners = "-" }
-      try { var numberOfCornersFirstHalf = lastStat.logStatus.gameStatus.score.numberOfCornersFirstHalf } 
-        catch(e) { var numberOfCornersFirstHalf = "-" }
-      try { var numberOfCornersSecondHalf = lastStat.logStatus.gameStatus.score.numberOfCornersSecondHalf} 
-        catch(e) { var numberOfCornersSecondHalf = "-" }
-      try { var bookingPoints = lastStat.logStatus.gameStatus.score.bookingPoints } 
-        catch(e) { var bookingPoints = "-" }
-
-      var outputScore =
-        "<hr>"
-        + "<h4>SCORE: " + homeScore + " " + homeName + " : " + awayScore + " " + awayName + "</h4>"
-        + "<h3 style='color:pink;'>" + homeScore  + " : " + awayScore  + "</h3>"
-        + addRow(homeName, results, "score", "home", true)
-        + addRow(awayName, results, "score", "away", false)
-        + addBottom;
-
-      $('#score').html(outputScore);
-
-      var outputMarketTable =
-      "<h4>MARKET</h4>"
-      + marketTable(results);
-      $('#markettable').html(outputMarketTable);   
-
-      var outputStats =
-      "<h4>" + homeName + " :: OTHER EVENTS</h4>"
-       + addRow("Penalties Score", results, "penaltiesScore", "home", true)
-       + addRow("Games", results, "games", "home", false)
-       + addRow("Sets", results, "sets", "home", false)
-       + addRow("Number Of Yellow Cards", results, "numberOfYellowCards", "home", false)
-       + addRow("Number Of Red Cards", results, "numberOfRedCards", "home", false)
-       + addRow("Number Of Cards", results, "numberOfCards", "home", false)
-       + addRow("Number Of Corners", results, "numberOfCorners", "home", false)
-       + addRow("Booking Points", results, "bookingPoints", "home", false)
-       + addBottom
-       + "<h4>" + awayName + " :: OTHER EVENTS</h4>"
-       + addRow("Penalties Score", results, "penaltiesScore", "away", true)
-       + addRow("Games", results, "games", "away", false)
-       + addRow("Sets", results, "sets", "away", false)
-       + addRow("Number Of Yellow Cards", results, "numberOfYellowCards", "away", false)
-       + addRow("Number Of Red Cards", results, "numberOfRedCards", "away", false)
-       + addRow("Number Of Cards", results, "numberOfCards", "away", false)
-       + addRow("Number Of Corners", results, "numberOfCorners", "away", false)
-       + addRow("Booking Points", results, "bookingPoints", "away", false)
-       + addBottom
-       + "<h4>OTHER EVENTS (TOTAL)</h4>"
-       + "<p>"
-       + "Number Of Yellow Cards:<strong> " + numberOfYellowCards + "</strong><br>"
-       + "Number Of Red Cards:<strong> " + numberOfRedCards + "</strong><br>"
-       + "Number Of Cards:<strong> " + numberOfCards + "</strong><br>"
-       + "Number Of Corners:<strong> " + numberOfCorners + "</strong><br>"
-       + "Number Of Corners in First Half:<strong> " + numberOfCornersFirstHalf + "</strong><br>"
-       + "Number Of Corners in Second Half:<strong> " + numberOfCornersSecondHalf + "</strong><br>"
-       + "Booking Points:<strong> " + bookingPoints + "</strong>"
-       "</p>";
-
-      $('#stats').html(outputStats)
-    }    
-  }); 
-}
-
-//###################################################################################
-
-function getMarkets(eventId){
-  var body = { find: { "logMarket.eventId": eventId } };
-  $.ajax({
-     type: "POST",
-     url: "/findLogMarketQuery",
-     contentType: "application/json; charset=utf-8",
-     data: JSON.stringify(body),
-     success: function(msg) {
-
-      var selectionId = msg.results[0].logMarket.market.item.runners[0].selectionId;      
-      var availableToBack = msg.results[0].logMarket.market.item.runners[0].ex.availableToBack;
-      var itemsPrices = getItemsPrices(availableToBack);
-      drawChart("back0", itemsPrices.items, itemsPrices.prices, "Available to Back", "#3e95cd", selectionId);
-      var availableToLay = msg.results[0].logMarket.market.item.runners[0].ex.availableToLay;
-      var itemsPrices = getItemsPrices(availableToLay);
-      drawChart("lay0", itemsPrices.items, itemsPrices.prices, "Available to Lay", "#3e95cd", selectionId);
-      var tradedVolume = msg.results[0].logMarket.market.item.runners[0].ex.tradedVolume;
-      var itemsPrices = getItemsPrices(tradedVolume);
-      drawChart("traded0", itemsPrices.items, itemsPrices.prices, "Traded Volume", "#3e95cd", selectionId);
-
-      var selectionId = msg.results[0].logMarket.market.item.runners[1].selectionId;      
-      var availableToBack = msg.results[0].logMarket.market.item.runners[1].ex.availableToBack;
-      var itemsPrices = getItemsPrices(availableToBack);
-      drawChart("back1", itemsPrices.items, itemsPrices.prices, "Available to Back", "#3cba9f", selectionId);
-      var availableToLay = msg.results[0].logMarket.market.item.runners[1].ex.availableToLay;
-      var itemsPrices = getItemsPrices(availableToLay);
-      drawChart("lay1", itemsPrices.items, itemsPrices.prices, "Available to Lay", "#3cba9f", selectionId);
-      var tradedVolume = msg.results[0].logMarket.market.item.runners[1].ex.tradedVolume;
-      var itemsPrices = getItemsPrices(tradedVolume);
-      drawChart("traded1", itemsPrices.items, itemsPrices.prices, "Traded Volume", "#3cba9f", selectionId);
-
-      var selectionId = msg.results[0].logMarket.market.item.runners[2].selectionId;      
-      var availableToBack = msg.results[0].logMarket.market.item.runners[2].ex.availableToBack;
-      var itemsPrices = getItemsPrices(availableToBack);
-      drawChart("back2", itemsPrices.items, itemsPrices.prices, "Available to Back", "#c45850", selectionId);
-      var availableToLay = msg.results[0].logMarket.market.item.runners[2].ex.availableToLay;
-      var itemsPrices = getItemsPrices(availableToLay);
-      drawChart("lay2", itemsPrices.items, itemsPrices.prices, "Available to Lay", "#c45850", selectionId);
-      var tradedVolume = msg.results[0].logMarket.market.item.runners[2].ex.tradedVolume;
-      var itemsPrices = getItemsPrices(tradedVolume);
-      drawChart("traded2", itemsPrices.items, itemsPrices.prices, "Traded Volume", "#c45850", selectionId);
     }    
   }); 
 }

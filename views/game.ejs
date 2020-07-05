@@ -8,6 +8,12 @@
 
     <title>Game Status</title>
 
+    <style>
+      td {
+        padding-left: 10px;
+      }
+    </style>
+
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" rel="stylesheet">
     <!-- Custom styles for this template -->
@@ -32,35 +38,15 @@
 
   </head>
   <body>
-
+    
     <div class="container">
         <div id="game"></div>
-        <div id="result"></div>
-        <div id="score"></div>
-        <div id="markettable"></div>
-        <div id="stats"></div>        
-        <div id="market">
-            <!-- <canvas id="back0" width="800" height="200"></canvas>
-            <canvas id="lay0" width="800" height="200"></canvas>
-            <canvas id="traded0" width="800" height="200"></canvas>
-
-            <canvas id="back1" width="800" height="200"></canvas>
-            <canvas id="lay1" width="800" height="200"></canvas>
-            <canvas id="traded1" width="800" height="200"></canvas>
-            
-            <canvas id="back2" width="800" height="200"></canvas>            
-            <canvas id="lay2" width="800" height="200"></canvas>
-            <canvas id="traded2" width="800" height="200"></canvas> -->
-          </div>
-    </div> 
+    </div>
 
     <script>
       $(document).ready( function() { 
         var eventId = Number(urlParam('eventId'));
         getGame(eventId);
-        getResult(eventId);
-        getStats(eventId);
-        getMarkets(eventId);
       });
     </script>
 
