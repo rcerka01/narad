@@ -7,7 +7,7 @@ var dbLogin = conf.db.login;
 var dbPassword = conf.db.password;
 
 mongoose.Promise = global.Promise; // just must have
-mongoose.connect("mongodb://" + dbLogin + ":" + dbPassword + dbDomain + dbName, {useMongoClient: true});
+mongoose.connect("mongodb://" + dbLogin + ":" + dbPassword + dbDomain + dbName, { useNewUrlParser: true, useUnifiedTopology: true});
 
 var Schema = mongoose.Schema;
 
