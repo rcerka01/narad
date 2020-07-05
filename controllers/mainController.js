@@ -1,31 +1,29 @@
 module.exports = { run: function (app) {
 
+        // main pages
         app.get("/", function(req, res) {
-            res.render("inbet");
+            res.render("bets");
         });
-            
-        app.get("/game", function(req, res) {
-            res.render("game");
-        });
-  
-        app.get("/stats", function(req, res) {
-            res.render("stats");
-        });
-            
+
         app.get("/bets", function(req, res) {
             res.render("bets");
         });
-            
-        app.get("/search", function(req, res) {
-            res.render("search");
+  
+        app.get("/games", function(req, res) {
+            res.render("games");
         });
             
         app.get("/account", function(req, res) {
             res.render("account");
         });
+
+        // sub pages
+        app.get("/search", function(req, res) {
+            res.render("search");
+        });
         
-        app.get("/research", function(req, res) {
-            res.render("research");
+        app.get("/game", function(req, res) {
+            res.render("game");
         });
     }
 }

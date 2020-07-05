@@ -11,133 +11,11 @@ var urlParam = function(name){
 	return results[1] || 0;
 }
 
-//###################################################################################
-
-// draw market table for game report
-function marketTable(results) {
-    var output = header();
-  
-    for (var n=0; n<=2; n++) {
-  
-      output = output +     
-      "</tr>" +  
-    "</thead>" +  
-    "<tbody>" +  
-      "<tr>" +  
-        "<th scope='row'>" + results[0].logStatus.marketBetStatus[n].selectionId + "</th>";
-        for (var i=1; i<=100; i++ ) {
-          var item = "<td>"  + "" +  "</td>";
-  
-          for (var ii in results) {
-            var status = results[ii].logStatus.gameStatus;
-            var market = results[ii].logStatus.marketBetStatus[n];
-  
-            var fullMarket = 
-              "BACK_PRICE:<strong>" + market.backPrice + "</strong><br>" +
-              "BACK_SIZE:<strong>" + market.backSize + "</strong><br>" +
-              "LAY_PRICE:" + market.layPrice + "<br>" +
-              "LAY_SIZE:" + market.laySize + "<br>";
-            
-            if (i == status.timeElapsed) {
-              item = "<td style='background-color:pink;width:10%;'>" + fullMarket + "</td>";
-            }
-          }
-          output = output + item;
-        }
-      }
-      return output;
-  }
-
-  //###################################################################################
-  
-// add row for stats table for game report
-function addRow(name, results, event, side, isTop) {    
-    if (isTop) {
-        var output = header();
-    } else {
-        var output = "";
-    }
-
-    output = output +     
-    "</tr>" +  
-  "</thead>" +  
-  "<tbody>" +  
-    "<tr>" +  
-    "<th scope='row'>" + name + "</th>";
-    var prev;
-    for (var i=1; i<=100; i++ ) {
-        var item = "<td>" + "" + "</td>";
-
-        for (var ii in results) {
-        var status = results[ii].logStatus.gameStatus;
-        if (i == status.timeElapsed && prev != status.score[side][event]) {
-            item = "<td style='background-color:pink;font-weight:bold;'>" + status.score[side][event] + "</td>";
-            prev = status.score[side][event];
-        }
-        }
-
-        output = output + item;
-    }
-    return output;
-}
-  
-// used in addRow()
-function header() {
-var output = 
-"<table class='table table-striped' style='font-size:8px;'>" +
-    "<thead>" +
-    "<tr>" +
-    "<th> EVENT/TIME </th>";
-    for (var i=1; i<=100; i++ ) {
-        output = output + "<th>" + i + "</th>";
-    };
-    return output;
-}
-  
-// used in addRow()
-var addBottom = "</tr></tbody></table>";
 
 //###################################################################################
 
-// draw single line chart
-function drawChart(divId, items, data, label, color, title) {
-    new Chart(document.getElementById(divId), {
-      type: 'line',
-      data: {
-        labels: items,
-        datasets: [{ 
-            data: data,
-            label: label,
-            borderColor: color,
-            fill: false
-          }
-        ]
-      },
-      options: {
-        title: {
-          display: true,
-          text: title
-        }
-      }
-    });
-  }
-
-
-  // used for single line chart
-  function getItemsPrices(source) {
-    var items = [];
-    var prices = [];
-    for (var i in source) {
-      items.push(i);
-      prices.push(source[i].price); 
-    }
-    return { items:items, prices:prices };
-  }
-
-  //###################################################################################
-
-  // get data picker (stats, bets, account)
-  function datePicker(f,f2) {
+// get data picker (stats, bets, account)
+function datePicker(f,f2) {
               
     var start = moment().subtract(1, 'days');
     var end = moment();
@@ -168,8 +46,8 @@ function drawChart(divId, items, data, label, color, title) {
 
 //###################################################################################
 
-  // get data picker (stats, bets, account)
-  function datePickerForSearch(f, team1, team2) {
+// get data picker (stats, bets, account)
+function datePickerForSearch(f, team1, team2) {
             
     var start = moment().subtract(2, 'month');
     var end = moment();
@@ -287,65 +165,6 @@ function accountProfitChart(div, times, total) {
   });
 }
 
-//###################################################################################
-
-function drawStatsGraph(div, data) {
-    // avoid canvas history bug ->
-    var in_canvas = document.getElementById('statsGraph-holder');
-    //remove canvas if present
-    while (in_canvas.hasChildNodes()) {
-      in_canvas.removeChild(in_canvas.lastChild);
-    } 
-    //insert canvas
-    var newDiv = document.createElement('canvas');
-  //  newDiv.setAttribute("width","800");
-  //  newDiv.setAttribute("height","300");
-    in_canvas.appendChild(newDiv);
-    newDiv.id = div;
-    // <-
-  
-  var ctx = document.getElementById(div).getContext('2d');
-  var myChart = new Chart(ctx, {
-      type: 'bar',
-      data: {
-          labels: ["All Games", "Successfully Placed Bets", "Lost Bets", "In Play Bets (or unknown result)"],
-          datasets: [
-              
-              {
-              label: 'Stats',
-              data: data,
-
-              backgroundColor: [
-              'rgba(54, 162, 235, 0.2)',
-              'rgba(255, 99, 132, 0.2)',
-              '#c45850',
-              'rgba(54, 162, 235, 0.2)'
-              ],
-
-              borderColor: [
-              'rgba(54, 162, 235, 1)',
-              'rgba(255,99,132,1)',
-              'rgba(54, 162, 235, 1)',
-              'rgba(54, 162, 235, 1)'
-              ],
-
-              width: 100,
-              borderWidth: 1
-          }]
-      },
-      options: {
-      responsive: true,
-      maintainAspectRatio: false,
-          scales: {
-              yAxes: [{
-                  ticks: {
-                      beginAtZero:true
-                  }
-              }]
-          }
-      }
-  });
-}
 
 //###################################################################################
 function gamesTable(results) {
