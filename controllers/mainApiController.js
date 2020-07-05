@@ -144,12 +144,12 @@ module.exports = { run: function (app) {
     });
         
     // LOG MARKET
-    app.post("/findLogMarketQuery", function(req, res) {
+    app.post("/findGamesQuery", function(req, res) {
         
         var find = req.body.find;
         var sort = req.body.sort;
         var subset = req.body.subset;    
-        logMarket.find(find, subset).sort(sort).exec(function (err, results) {
+        vishnu.find(find, subset).sort(sort).exec(function (err, results) {
             
             if (err) console.log("EXCEPTION IN FIND LOGG MARKET QUERY: " + err);
             
@@ -159,7 +159,7 @@ module.exports = { run: function (app) {
     });
         
     // LOG RESULT
-    app.post("/findLogResultQuery", function(req, res) {
+    app.post("/findGamesQuery", function(req, res) {
         
         var find = req.body.find;
         var sort = req.body.sort;
@@ -257,7 +257,36 @@ module.exports = { run: function (app) {
             });
     });
 
-    //############################################################################ SEARCH   
+    //############################################################################ 2020 
+
+    app.post("/findGamesByDateAndTeam", function(req, res) {
+    
+        var start = req.body.start;
+        var end = req.body.end;
+        var home = req.body.home;
+        var away = req.body.away;
+
+        var find = 
+            { _id: 
+                {
+                    $gte: ObjectId(Math.floor(start/1000).toString(16) + "0000000000000000"), 
+                    $lte: ObjectId(Math.floor(end/1000).toString(16) + "0000000000000000")
+                }
+            };
+
+        var or = [{"score.home.name": home},{"score.away.name":away}];
+            
+        var sort = req.body.sort;
+        vishnu.find(find).or(or).sort(sort).exec(function (err, results) {
+            
+            if (err) console.log("EXCEPTION IN FIND LOGG RESULTS QUERY: " + err);
+            
+            try { var total = results.length; } catch(e) { var total = 0; }
+            res.json({total: total, results: results}); 
+        });
+    });
+
+    //############################################################################ 
 
     var searchApiController = require('./searchApiController');
     searchApiController.run(app);

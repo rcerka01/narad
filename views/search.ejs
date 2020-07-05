@@ -32,8 +32,10 @@
       h5 {
         color: pink;
       }
-      .search {
-        width: 550px;
+
+      td, th {
+        padding-right: 10px;
+        padding-left: 10px;
       }
     </style>
 
@@ -49,34 +51,38 @@
        <hr>
 
        <h4>SEARCH</h4>
+
        <hr>
-       <h5 id="team1">Tam name</h5>
+       <h5><span id="team1">Team name</span><span id="scorehome"></span></h5>
+       <hr>
+
        <table>
-         <th>
-           As Home player
+         <th  style='border-right: 1px solid black;'>
+           As Home player <span id="scorehomehome"></span>
          </th>
          <th>
-            As Away player
+            As Away player <span id="scorehomeaway"></span>
           </th>
         <tr>
-          <td><div id="output" class="search">...</div></td>
-          <td><div id="output2" class="search">...</div></td>
+          <td style='border-right: 1px solid black;'><div id="homehome" class="search">...</div></td>
+          <td><div id="homeaway" class="search">...</div></td>
         </tr>
         </table>
 
         <hr>
-        <h5 id="team2">Tam name</h5>
+        <h5><span id="team2">Team name</span><span id="scoreaway"></span></h5>
+        <hr>
 
         <table>
-          <th>
-            As Home player
+          <th style='border-right: 1px solid black;'>
+            As Home player <span id="scoreawayhome"></span>
           </th>
           <th>
-            As Away player
+            As Away player <span id="scoreawayaway"></span>
           </th>
           <tr>
-            <td><div id="output3" class="search">...</div></td>
-            <td><div id="output4" class="search">...</div></td>
+            <td style='border-right: 1px solid black;'><div id="awayhome" class="search">...</div></td>
+            <td><div id="awayaway" class="search">...</div></td>
           </tr>
        </table>
 

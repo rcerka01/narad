@@ -604,98 +604,125 @@ function drawBetsGraph(div, data) {
 
 //###################################################################################
 
-function searchTable(data, homeAway) {
+function addTable(date, home, away, homeScore, awayScore, id) {
+  return "<tr>"
+  + "<td>" + moment(dateFromObjectId(date)).format('H:mm:ss DD/MM/YYYY') + "</td>"
+  + "<td><strong>" + home + " v " + away + "</strong></td>"
+  + "<td>" + homeScore + " : " + awayScore + "</td>"
+  + "<td>" + id + "</td>"
+  + "</tr>";
+}
+
+function addScore(win, loose, draw) {
+  return "<strong>"
+  + "<span style='color:green;padding:10px;'>" + win + "</span>" 
+  + "<span style='color:red;padding:10px;'>" + loose + "</span>"
+  + "<span style='color:black;padding:10px;'>" + draw + "</span>"
+  + "</strong>";
+}
+
+function searchTable(data, home, away) {
+ var results = data.results;
+
   var outputTop = 
   "<table class='table table-striped' style='font-size:8px;'>"
   + "<thead>"
       + "<tr>"
-      + "<th>Start Time</th>"
+      + "<th>Date</th>"
       + "<th>Competition</th>"
-      + "<th>Name</th>"
-      + "<th>Team</th>"
-      + "<th>Draw</th>"
-      + "<th></th>"
+      + "<th>Score</th>"
+      + "<th>Id</th>"
       + "</tr>"
   + "</thead>"      
   + "<tbody>";  
 
-  var outputBody = "";
+  var bodyHomeHome = "";
+  var bodyHomeAway = "";
+  var bodyAwayHome = "";
+  var bodyAwayAway = "";
 
-  var win = 0;
-  var loose = 0;
-  var draw = 0;
+  var winHomeHome = 0;
+  var looseHomeHome = 0;
+  var drowHomeHome = 0;
 
-  for (var i in data) {
+  var winHomeAway = 0;
+  var looseHomeAway = 0;
+  var drowHomeAway = 0;
 
-    if (data[i].team == "WINNER") win++;
-    if (data[i].team == "LOSER" && data[i].draw == "LOSER") loose++;
-    if (data[i].draw == "WINNER") draw++;
+  var winAwayHome = 0;
+  var looseAwayHome = 0;
+  var drowAwayHome = 0;
 
-    outputBody = outputBody
-      + "<tr>"
-      + "<td>" + data[i].startTime.slice(0, -5).replace("T", " ") + "</td>"
-      + "<td><strong>" + data[i].eventName + "</strong><br>" + data[i].competitionName + "<br>" + data[i].countryCode + "</td>"
-      + "<td>" + homeAway + " name: <strong>" + data[i].homeName + "</strong><br>Runner: " + data[i].run1Name + "<br>Selection ID: " + data[i].runSelectionId + "</td>"
-      + "<td>" + data[i].homeName + "<br>" + data[i].runSelectionId + "<br><strong>" + data[i].team + "</strong></td>"
-      + "<td>" + data[i].runDrawSelectionId + "<br><strong>" + data[i].draw + "</strong></td>"
-      + "<td><a href='/game?eventId=" + data[i].eventId + "' target='_blank'>GAME STATS</a></td>"
-      + "</tr>";
+  var winAwayAway = 0;
+  var looseAwayAway = 0;
+  var drowAwayAway = 0;
+
+  for (var i in results) {
+    try { 
+      if (results[i].score.home.name == home) {
+        if (results[i].score.home.score > results[i].score.away.score) { winHomeHome++; }
+        if (results[i].score.home.score < results[i].score.away.score) { looseHomeHome++; }
+        if (results[i].score.home.score == results[i].score.away.score) { drowHomeHome++; }
+        bodyHomeHome = bodyHomeHome + addTable(
+          results[i]._id,
+          results[i].score.home.name,
+          results[i].score.away.name,
+          results[i].score.home.score,
+          results[i].score.away.score,
+          results[i].eventId)
+      }
+      if (results[i].score.away.name == home) {
+        if (results[i].score.home.score < results[i].score.away.score) { winHomeAway++; }
+        if (results[i].score.home.score > results[i].score.away.score) { looseHomeAway++; }
+        if (results[i].score.home.score == results[i].score.away.score) { drowHomeAway++; }
+        bodyHomeAway = bodyHomeAway + addTable(
+          results[i]._id,
+          results[i].score.home.name,
+          results[i].score.away.name,
+          results[i].score.home.score,
+          results[i].score.away.score,
+          results[i].eventId)
+      }
+      if (results[i].score.home.name == away) {
+        if (results[i].score.home.score > results[i].score.away.score) { winAwayHome++; }
+        if (results[i].score.home.score < results[i].score.away.score) { looseAwayHome++; }
+        if (results[i].score.home.score == results[i].score.away.score) { drowAwayHome++; }
+        bodyAwayHome = bodyAwayHome + addTable(
+          results[i]._id,
+          results[i].score.home.name,
+          results[i].score.away.name,
+          results[i].score.home.score,
+          results[i].score.away.score,
+          results[i].eventId)
+      }
+      if (results[i].score.away.name == away) {
+        if (results[i].score.home.score < results[i].score.away.score) { winAwayAway++; }
+        if (results[i].score.home.score > results[i].score.away.score) { looseAwayAway++; }
+        if (results[i].score.home.score == results[i].score.away.score) { drowAwayAway++; }
+        bodyAwayAway = bodyAwayAway + addTable(
+          results[i]._id,
+          results[i].score.home.name,
+          results[i].score.away.name,
+          results[i].score.home.score,
+          results[i].score.away.score,
+          results[i].eventId)
+      }
+          
+    } catch(e) {}
   }
 
   var outputBottom = "</tbody></table>";
 
-  var outputResume = "<br><strong>" +
-  "<span style='color:green;padding:10px;'>" + win + "</span>" +
-  "<span style='color:red;padding:10px;'>" + loose + "</span>" +
-  "<span style='color:black;padding:10px;'>" + draw + "</span>" +
-  "</strong>";
+  $('#homehome').html(outputTop + bodyHomeHome + outputBottom);
+  $('#homeaway').html(outputTop + bodyHomeAway + outputBottom);
+  $('#awayhome').html(outputTop + bodyAwayHome + outputBottom);
+  $('#awayaway').html(outputTop + bodyAwayAway + outputBottom);
+  
+  $('#scorehomehome').html(addScore(winHomeHome, looseHomeHome, drowHomeHome));
+  $('#scorehomeaway').html(addScore(winHomeAway, looseHomeAway, drowHomeAway));
+  $('#scoreawayhome').html(addScore(winAwayHome, looseAwayHome, drowAwayHome));
+  $('#scoreawayaway').html(addScore(winAwayAway, looseAwayAway, drowAwayAway));
 
-  return outputTop + outputBody + outputBottom + outputResume;
-}
-
-//###################################################################################
-
-function getSearchResults(runner, i, total, outputDiv, homeAway, results, selIds) {
-  $.ajax({
-      type: "POST",
-      url: "/findLogResultQuery",
-      contentType: "application/json; charset=utf-8",
-      data: JSON.stringify({ find: { "logResult.eventId": runner[i].logGame.eventId } }),
-      success: function(r) {
-
-          var item = {
-              total: total,
-              eventId: runner[i].logGame.eventId,
-              startTime: runner[i].logGame.startTime,
-              countryCode: runner[i].logGame.countryCode,
-              competitionName: runner[i].logGame.competitionName,
-              eventName: runner[i].logGame.eventName,
-              runSelectionId: runner[i].logGame.runners[selIds.selectionId],
-              runDrawSelectionId: runner[i].logGame.runners.drawSelectionId,
-              run1Name: runner[i].logGame.runners[selIds.runName],
-              homeName: runner[i].logGame[selIds.name]
-          };
-
-          if (r.total > 0) {
-              var runners = r.results[0].logResult[0].item.runners;
-              for (var ii in runners) {
-                  if (runners[ii].selectionId == item.runSelectionId) {
-                      item.team = runners[ii].status
-                  }
-                  if (runners[ii].selectionId == item.runDrawSelectionId) {
-                      item.draw = runners[ii].status
-                  }
-              }
-          }
-
-          results.push(item);
-          if (results.length == total) {  
-              results.reverse();
-              var output = searchTable(results, homeAway)
-              $(outputDiv).html(output);
-          } else {
-            $(outputDiv).html("...");
-          }
-      }
-  })
+  $('#scorehome').html(addScore(winHomeHome + winHomeAway, looseHomeHome + looseHomeAway, drowHomeHome + drowHomeAway));
+  $('#scoreaway').html(addScore(winAwayHome + winAwayAway, looseAwayHome + looseAwayAway, drowAwayHome + drowAwayAway));
 }
