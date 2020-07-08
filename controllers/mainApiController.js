@@ -111,18 +111,24 @@ module.exports = { run: function (app) {
         var home = req.body.home;
         var away = req.body.away;
 
-        var find = 
+        var find = { $and: [
             { _id: 
                 {
                     $gte: ObjectId(Math.floor(start/1000).toString(16) + "0000000000000000"), 
                     $lte: ObjectId(Math.floor(end/1000).toString(16) + "0000000000000000")
                 }
-            };
-
-        var or = [{"score.home.name": home},{"score.away.name":away}];
+            },
+            { $or: [
+                { "score.home.name": home },
+                { "score.home.name": away },
+                { "score.away.name": home },
+                { "score.away.name": away }
+                ]
+            }
+        ]};
             
         var sort = req.body.sort;
-        vishnu.find(find).or(or).sort(sort).exec(function (err, results) {
+        vishnu.find(find).sort(sort).exec(function (err, results) {
             
             if (err) console.log("EXCEPTION IN FIND LOGG RESULTS QUERY: " + err);
             
