@@ -169,22 +169,21 @@ function accountProfitChart(div, times, total) {
 //###################################################################################
 function gamesTable(results) {
 
+  results = results.sort((a,b) => a.openDate > b.openDate);
+
   var outputTop = 
     "<table class='table table-striped' style='font-size:8px;'>"
     + "<thead>"
         + "<tr>"
             + "<th>Start</th>"
-            + "<th>Home</th>"
-            + "<th>Away</th>"
-            + "<th>Score</th>"
-            + "<th>Points</th>"
             + "<th>Id</th>"
-            + "<th>Corners</th>"
-            + "<th>1.</th>"
-            + "<th>2.</th>"
-            + "<th>Cards</th>"
-            + "<th>Yellow</th>"
-            + "<th>Red</th>"
+            + "<th>Competition</th>"
+            + "<th>Country</th>"
+            + "<th>Event Name</th>"
+            + "<th>Open Time</th>"
+            + "<th>Status</th>"
+            + "<th>Score</th>"
+            + "<th></th>"
             + "<th></th>"
             + "<th></th>"
         + "</tr>"
@@ -192,55 +191,69 @@ function gamesTable(results) {
     + "<tbody>";      
 
   var outputBody = "";
-  for (var i in results) {
-    try { 
-      var homeScore = results[i].score.home.score;
-      var awayScore = results[i].score.away.score;
-      var home = results[i].score.home.name;
-      var away = results[i].score.away.name;
-      var bp = results[i].score.bookingPoints;
-      var c = results[i].score.numberOfCorners;
-      var c1 = results[i].score.numberOfCornersFirstHalf;
-      var c2 = results[i].score.numberOfCornersSecondHalf;
-      var cards = results[i].score.numberOfCards;
-      var yellow = results[i].score.numberOfYellowCards;
-      var red = results[i].score.numberOfRedCards;
-    } catch(e) { 
-      var homeScore = "unknown";
-      var awayScore = "unknown";
-      var home = "unknown";
-      var away = "unknown";
-      var bp = "unknown";
-      var c = "unknown";
-      var c1 = "unknown";
-      var c2 = "unknown";
-      var cards = "unknown";
-      var yellow = "unknown";
-      var red = "unknown";
-    }
 
-    outputBody = outputBody
-    + "<tr>"
-    + "<td>" + moment(dateFromObjectId(results[i]._id)).subtract(results[i].timeElapsed, 'minutes').format('H:mm:ss DD/MM/YYYY') + "</td>"
-    + "<td>" + home + "</td>"
-    + "<td>" + away + "</td>"
-    + "<td>" + homeScore + " : " + awayScore + "</td>"
-    + "<td>" + bp + "</td>"
-    + "<td>" + results[i].eventId + "</td>"
-    + "<td>" + c + "</td>"
-    + "<td>" + c1 + "</td>"
-    + "<td>" + c2 + "</td>"
-    + "<td>" + cards + "</td>"
-    + "<td>" + yellow + "</td>"
-    + "<td>" + red + "</td>"
-    + "<td>" + results[i].status + "</td>"
-    + "<td>" + results[i].status + "</td>"
-    + "<td><a href='/game?eventId=" + results[i].eventId + "' target='_blank'>GAME STATS</a></td>"
-    + "<td><a href='/search?" 
-            + "team1=" + results[i].score.home.name 
-            + "&team2=" + results[i].score.away.name
-            + "' target='_blank'>SEARCH</a></td>"
-    + "</tr>";
+  for (var i in results) {
+      var displaySearch = true;
+      var displayStats = true;
+
+      if (results[i].score === undefined) { displayStats = false; }
+
+      var dateFromId = moment(dateFromObjectId(results[i]._id)).format('H:mm:ss DD/MM/YYYY')
+
+      try { var id = results[i].eventId; } catch(e) { var id = "?" } 
+      try { var marketId = results[i].markets[0].marketId; } catch(e) { var marketId = "?" } 
+      try { var openTime = moment(results[i].openDate).format('H:mm'); } catch (e) { var openTime = "?"; }
+      try { var openDate = moment(results[i].openDate).format('DD / MM / YYYY'); } catch (e) { var openDate = "?"; }
+      try { var competition = results[i].competition; } catch (e) { var competition = "?" }
+      try { var eventName = results[i].eventName; } catch (e) { var eventName = "?" }
+      try { var country = results[i].country; } catch (e) { var country = "?" }
+      try { var status = results[i].status; } catch (e) { var status = "UPCOMING" }
+      try { var scoreHome = results[i].score.home.score; } catch (e) { var scoreHome = "-" }
+      try { var scoreAway = results[i].score.away.score; } catch (e) { var scoreAway = "-" }
+
+      if (status === undefined) { status = "UPCOMING"; }
+
+      var teamNames = eventName.split(" v ");
+
+      try { var homeTeamName = results[i].score.home.name; } catch (e) { 
+        if (teamNames.length > 0) { var homeTeamName = teamNames[0]; } else { var homeTeamName = ""; displaySearch = false; }
+      }
+      try { var awayTeamName = results[i].score.away.name; } catch (e) { 
+        if (teamNames.length > 0) { var awayTeamName = teamNames[1]; } else { var awayTeamName = ""; displaySearch = false; }
+      }
+
+      if (homeTeamName == "Home" && teamNames.length > 0) { homeTeamName = teamNames[0]; }
+      if (awayTeamName == "Away" && teamNames.length > 0) { awayTeamName = teamNames[1]; }
+
+      if (displaySearch) {
+        var searchLink = "<td><a href='/search?" 
+        + "team1=" + homeTeamName
+        + "&team2=" + awayTeamName
+        + "' target='_blank'>SEARCH</a></td>";
+      } else {
+        var searchLink = "";
+      }
+
+      if (displayStats) {
+        var statsLink = "<td><a href='/game?eventId=" + id + "' target='_blank'>GAME STATS</a></td>"
+      } else {
+        var statsLink = "<td>disabled</td>";
+      }
+
+      outputBody = outputBody
+      + "<tr>"
+      + "<td> Record: " + dateFromId + "<br>Open Date: <strong>" + openDate + "</strong></td>"
+      + "<td>" + id + "<br>" + marketId + "</td>"
+      + "<td>" + competition + "</td>"
+      + "<td>" + country + "</td>"
+      + "<td>" + eventName + "</td>"
+      + "<td>" + openTime + "</td>"
+      + "<td>" + status + "</td>"
+      + "<td>" + scoreHome + " : " + scoreAway + "</td>"
+      + searchLink
+      + "<td><a href='/gameOdds?eventId=" + id + "' target='_blank'>GAME ODDS</a></td>"
+      + statsLink
+      + "</tr>";
   }
 
   var outputBottom = "</tbody></table>";
@@ -268,6 +281,7 @@ function betsTable(results) {
           + "<th>Game</th>"
           + "<th>Status</th>"
           + "<th>Result</th>"
+          + "<th></th>"
           + "<th></th>"
           + "<th></th>"
       + "</tr>"
@@ -352,7 +366,8 @@ function betsTable(results) {
       + "<td><a href='/search?" 
             + "team1=" + teams[0] 
             + "&team2=" + teams[1] 
-            + "' target='_blank'>SEARCH</a></td>"      
+            + "' target='_blank'>SEARCH</a></td>"
+      + "<td><a href='/gameOdds?eventId=" + results[ii].eventId + "' target='_blank'>ODDS</a></td>"
       + "</tr>";
   }
   
