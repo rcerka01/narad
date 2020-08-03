@@ -17,11 +17,21 @@ function getGame(eventId){
             updates = updates + "<tr><th>" + ud[i].matchTime + "</th><td>" + ud[i].type + "</td><td>" + ud[i].teamName + "</td><td>" + ud[i].team + "</td></tr>";
           }
 
+          var homeTeamName = results[0].score.home.name;
+          var awayTeamName = results[0].score.away.name;
+
+          var teamNames = results[0].eventName.split(" v ");
+
+          if (homeTeamName == "Home" && teamNames.length > 0) { homeTeamName = teamNames[0]; }
+          if (awayTeamName == "Away" && teamNames.length > 0) { awayTeamName = teamNames[1]; }
+    
+
           var output =
             "<hr>" +
-            "<h4>" + results[0].score.home.name + " v " + results[0].score.away.name + "</h4>" +
+            "<h4>" + results[0].eventName + "</h4>" +
             "<hr>" +
-            "<a href='/search?team1=" + results[0].score.home.name + "&team2=" + results[0].score.away.name + "' target='_blank'>SEARCH</a>" +
+            "<a href='/search?team1=" + homeTeamName + "&team2=" + awayTeamName + "' target='_blank'>SEARCH</a><br>" +
+            "<a href='/gameOdds?eventId=" + results[0].eventId + "' target='_blank'>ODDS</a>" +
             "<hr>" +
             "<table><tr>" +
             "<th>Id</th><td>" + results[0].eventId + "</td></tr>" +
@@ -38,7 +48,7 @@ function getGame(eventId){
 
             "<br>" +
             "<table>" +
-            "<tr><th></th><th>" + results[0].score.home.name + "</th><th>" + results[0].score.away.name + "</th></tr>" +
+            "<tr><th></th><th>" + homeTeamName+ "</th><th>" + awayTeamName + "</th></tr>" +
             "<tr><th>Booking points</th><td>" + results[0].score.home.bookingPoints + "</td><td> " + results[0].score.away.bookingPoints + "</td></tr>" +
             "<tr><th>Corners</th><td>" + results[0].score.home.numberOfCorners + "</td><td> " + results[0].score.away.numberOfCorners + "</td></tr>" +
             "<tr><th>Corners 1st half</th><td>" + results[0].score.home.numberOfCornersFirstHalf + "</td><td> " + results[0].score.away.numberOfCornersFirstHalf + "</td></tr>" +

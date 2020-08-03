@@ -17,10 +17,10 @@ function getAccount(start, end) {
 
           results.map(item => 
             {
-                balance.push(item.account.available_to_bet);
-                exposure.push(item.account.exposure);
-                total.push(item.account.available_to_bet - item.account.exposure) 
-                times.push(moment(dateFromObjectId(item._id)).format("dd Do, hA"));
+              balance.push(item.account.available_to_bet);
+              exposure.push(item.account.exposure);
+              total.push(item.account.available_to_bet - item.account.exposure) 
+              times.push(moment(dateFromObjectId(item._id)).format("dd Do, hA"));
             });
 
           accountProfitChart("profitchart", times, total);

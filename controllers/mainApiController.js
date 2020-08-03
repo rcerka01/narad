@@ -75,9 +75,23 @@ module.exports = { run: function (app) {
             res.json({total: total, results: results}); 
         });
     });
-        
-    // ACCOUNTS ############################################################################
 
+    // all game queries should be replaced with this one
+    app.post("/findGames", function(req, res) {        
+
+        var sort = req.body.sort;
+        var find = req.body.find;
+
+        vishnu.find(find).sort(sort).exec(function (err, results) {
+            
+            if (err) console.log("EXCEPTION IN FIND LOGG MARKET QUERY: " + err);
+            
+            try { var total = results.length; } catch(e) { var total = 0; }
+            res.json({total: total, results: results}); 
+        });
+    });
+
+    // ACCOUNTS ############################################################################
     app.post("/findAccountByDate", function(req, res) {
 
         var start = req.body.start;
