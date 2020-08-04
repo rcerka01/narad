@@ -71,10 +71,15 @@ function drawChart(updates, homeOdds, drawOdds, awayOdds, id) {
     });
   }
 
+  function orderArr(arr) {
+    if (arr[0].updated > arr[arr.length - 1].updated) { arr = arr.reverse(); }
+    return arr;
+  }
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function parseOdds(arr, isInPlay, crossArr) {
-    arr = arr.reverse();
+    arr = orderArr(arr);
 
     var homeOdds = [];
     var drawOdds = [];
@@ -96,7 +101,7 @@ function parseOdds(arr, isInPlay, crossArr) {
 
             // find corresponding cross
             if (crossArr !== undefined) {
-                crossArr = crossArr.reverse();
+                crossArr = orderArr(crossArr);
 
                 var startDate = new Date();
                 var prev;
@@ -166,9 +171,6 @@ function parseOdds(arr, isInPlay, crossArr) {
             awayVals.push(awayVal);
         }
     }
-
-    // most ideotic JS thing. function parametrer passed as an address
-    arr.reverse();
 
     return {
         updates: updates,
