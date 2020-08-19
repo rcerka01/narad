@@ -17,7 +17,7 @@ var urlParam = function(name){
 // get data picker (stats, bets, account)
 function datePicker(f,f2) {
               
-    var start = moment().subtract(1, 'days');
+    var start = moment().subtract(2, 'days');
     var end = moment();
 
     function cb(start, end) {
@@ -201,13 +201,13 @@ function gamesTable(results) {
       var dateFromId = moment(dateFromObjectId(results[i]._id)).format('H:mm:ss DD/MM/YYYY')
 
       try { var id = results[i].eventId; } catch(e) { var id = "?" } 
-      try { var marketId = results[i].markets[0].marketId; } catch(e) { var marketId = "?" } 
-      try { var openTime = moment(results[i].openDate).format('H:mm'); } catch (e) { var openTime = "?"; }
-      try { var openDate = moment(results[i].openDate).format('DD / MM / YYYY'); } catch (e) { var openDate = "?"; }
-      try { var competition = results[i].competition; } catch (e) { var competition = "?" }
-      try { var eventName = results[i].eventName; } catch (e) { var eventName = "?" }
-      try { var country = results[i].country; } catch (e) { var country = "?" }
-      try { var status = results[i].status; } catch (e) { var status = "UPCOMING" }
+      try { var marketId = results[i].markets[0].marketId; if (marketId === undefined) { marketId = "?"; } } catch(e) { var marketId = "?" } 
+      try { var openTime = moment(results[i].openDate).format('H:mm'); if (openTime === undefined) { openTime = "?"; } } catch (e) { var openTime = "?"; }
+      try { var openDate = moment(results[i].openDate).format('DD / MM / YYYY'); if (openDate === undefined) { openDate = "?"; }  } catch (e) { var openDate = "?"; }
+      try { var competition = results[i].competition; if (competition === undefined) { competition = "?"; }  } catch (e) { var competition = "?" }
+      try { var eventName = results[i].eventName; if (eventName === undefined) { eventName = "?"; } } catch (e) { var eventName = "?" }
+      try { var country = results[i].country; if (country === undefined) { country = "?"; }  } catch (e) { var country = "?" }
+      try { var status = results[i].status; if (status === undefined) { status = "UPCOMING" } } catch (e) { var status = "UPCOMING" }
       try { var scoreHome = results[i].score.home.score; } catch (e) { var scoreHome = "-" }
       try { var scoreAway = results[i].score.away.score; } catch (e) { var scoreAway = "-" }
 
@@ -559,4 +559,262 @@ function searchTable(data, home, away) {
 
   $('#scorehome').html(addScore(winHomeHome + winHomeAway, looseHomeHome + looseHomeAway, drowHomeHome + drowHomeAway));
   $('#scoreaway').html(addScore(winAwayHome + winAwayAway, looseAwayHome + looseAwayAway, drowAwayHome + drowAwayAway));
+}
+
+//////////////////////////////////////////////// ODDS ///////////////////////////////////////////////////////////////////////////////
+
+function drawChart(updates, homeOdds, drawOdds, awayOdds, id) {
+  var ctx = document.getElementById(id).getContext('2d');
+  var chart = new Chart(ctx, {
+      // The type of chart we want to create
+      type: 'line',
+  
+      // The data for our dataset
+      data: {
+          labels: updates,
+          datasets: [{
+              label: 'Home',
+              fill: false,
+              borderColor: 'rgb(255, 99, 132)',
+              data:  homeOdds,
+          },
+          {
+              label: 'Draw',
+              fill: false,
+              borderColor: 'rgb(25, 112, 132)',
+              data: drawOdds
+          },
+          {
+              label: 'Away',
+              fill: false,
+              borderColor: 'rgb(99, 115, 132)',
+              data: awayOdds
+          }]
+      },
+  
+      // Configuration options go here
+      options: {
+          spanGaps: true,
+          extrapolateMissingData: false,
+          scales: {
+              xAxes: [{
+                  ticks: {
+                      // Include a dollar sign in the ticks
+                      callback: function(value, index, values) {
+                          return value;
+                      }
+                  }
+              }]
+          }
+      }
+  });
+}
+
+function orderArr(arr) {
+  if (arr[0].updated > arr[arr.length - 1].updated) { arr = arr.reverse(); }
+  return arr;
+}
+
+function layToBack(val) {
+    var transfared = 1 + 1 / ( val - 1 );
+    return parseFloat(transfared).toFixed(3);
+}
+
+function laysToBacks(arr) {
+  arr = orderArr(arr);
+  var tempArr = [];
+  for(var a in arr) {
+      var home = layToBack(arr[a].home);
+      var draw = layToBack(arr[a].draw);  
+      var away = layToBack(arr[a].away);
+      tempArr.push({
+          home: home,
+          draw: draw, 
+          away:away,
+          updated:  arr[a].updated,
+          isInPlay: arr[a].isInPlay
+      });
+  }
+  return orderArr(tempArr);
+}
+
+function getCorrespondingCrossOdd(crossArr, odd) {
+  if (crossArr !== undefined) {
+      crossArr = orderArr(crossArr);
+
+      var startDate = new Date();
+      var prev;
+      var found = false;
+      for (var b in crossArr) {
+
+          if (odd.updated >= crossArr[b].updated) {
+               startDate = crossArr[b].updated; 
+              }
+          if (odd.updated <= crossArr[b].updated && odd.updated >= startDate && found == false) {
+              found = true;
+              var correspondingCross = prev;
+          }
+          prev = crossArr[b];
+      }
+  }
+  return correspondingCross;
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function getProbsAndVals(arr, isInPlay, typeForMessage, initialArrForLabel, alertMessage, crossArr) {
+  var homeOdds = [];
+  var drawOdds = [];
+  var awayOdds = []; 
+  var homeProbs = [];
+  var drawProbs = [];
+  var awayProbs = [];    
+  var homeVals = [];
+  var drawVals = [];
+  var awayVals = [];
+  var updates = [];
+
+  var homeValInfinite = [];
+  var drawValInfinite = [];
+  var awayValInfinite = [];
+
+  var isInPlayMessage = "IN PLAY";
+  if (!isInPlay) { isInPlayMessage = "COMING"; }
+
+  function addToInfiniteMessage(arr, val, date, home, draw, away) {
+      var time = (date).slice(11,-8);
+      arr.push(
+          { time: time,
+            val: val,
+            home: home,
+            draw: draw,
+            away: away,
+          });
+      return arr;
+  }
+
+  function alertInfinity(home, away, draw) {
+      function formMsgFromArr(arr) {
+          var arrMsg = "";
+          for (var i in arr) {
+              arrMsg = arrMsg + arr[i].time + " " + arr[i].val + " " + arr[i].home + "~" + arr[i].draw + "~" + arr[i].away + "\n";
+          }
+          return arrMsg;
+      }
+      var msg = "For " + typeForMessage + " " + isInPlayMessage + " folowing Value Bets are infinite: \n"
+          + "HOME:\n"
+          + formMsgFromArr(home)
+          + "DRAW:\n"
+          + formMsgFromArr(draw)
+          + "AWAY:\n"
+          + formMsgFromArr(away)
+      alert(msg);
+  }
+
+  for (var a in arr) {
+      var oddValue = arr[a];
+
+      // calculate cross
+      if (crossArr !== undefined) {
+          oddValue = getCorrespondingCrossOdd(crossArr, arr[a]);
+      }
+
+      if (oddValue !== undefined && oddValue.isInPlay == isInPlay) {
+
+
+          if (initialArrForLabel !== undefined && arr.length == initialArrForLabel.length) {
+              updates.push(moment(oddValue.updated).format('H : mm') + "  \n" 
+                  + oddValue.home + "~" + oddValue.draw + "~" + oddValue.away + " \n" 
+                  + initialArrForLabel[a].home + "~" +initialArrForLabel[a].draw + "~" + initialArrForLabel[a].away);
+          } else {
+              updates.push(moment(oddValue.updated).format('H : mm') + "  \n" 
+                  + oddValue.home + "~" + oddValue.draw + "~" + oddValue.away + " \n"); 
+          }
+
+          homeOdds.push(oddValue.home);
+          drawOdds.push(oddValue.draw);
+          awayOdds.push(oddValue.away);
+
+          var homeInterm = parseFloat(1 / oddValue.home * 100).toFixed(2); 
+          var drawInterm = parseFloat(1 / oddValue.draw * 100).toFixed(2);
+          var awayInterm = parseFloat(1 / oddValue.away * 100).toFixed(2);
+          var sumInterm = parseFloat(homeInterm) + parseFloat(drawInterm) + parseFloat(awayInterm);
+          sumInterm = sumInterm.toFixed(2);
+
+          var homeProb = parseFloat(homeInterm/sumInterm * 100).toFixed(2);
+          var drawProb = parseFloat(drawInterm/sumInterm * 100).toFixed(2);
+          var awayProb = parseFloat(awayInterm/sumInterm * 100).toFixed(2);
+          var sumProb = parseFloat(homeProb) + parseFloat(drawProb) + parseFloat(awayProb);
+          sumProb = sumProb.toFixed(2)
+
+          var homeVal = parseFloat(oddValue.home - 1 / homeProb*100).toFixed(2);
+          var drawVal = parseFloat(oddValue.draw - 1 / drawProb*100).toFixed(2);
+          var awayVal = parseFloat(oddValue.away - 1 / awayProb*100).toFixed(2);
+
+          // homeProbs.push({x: oddValue.updated, y: homeProb});
+          // drawProbs.push({x: oddValue.updated, y: drawProb});
+          // awayProbs.push({x: oddValue.updated, y: awayProb});
+
+          homeProbs.push(homeProb);
+          drawProbs.push(drawProb);
+          awayProbs.push(awayProb);
+
+          // form infinity message if flaged and 0 values
+          if (!isFinite(homeVal)) { 
+              addToInfiniteMessage(
+                  homeValInfinite,
+                  homeVal,
+                  oddValue.updated,
+                  initialArrForLabel[a].home,
+                  initialArrForLabel[a].draw,
+                  initialArrForLabel[a].away); 
+              homeVal = "0"; 
+          }
+
+          if (!isFinite(drawVal)) { 
+              addToInfiniteMessage(
+                  drawValInfinite,
+                  drawVal,
+                  oddValue.updated,
+                  initialArrForLabel[a].home,
+                  initialArrForLabel[a].draw,
+                  initialArrForLabel[a].away); 
+              drawVal = "0"; 
+          }
+
+          if (!isFinite(awayVal)) { 
+              addToInfiniteMessage(
+                  awayValInfinite,
+                  awayVal,
+                  oddValue.updated,
+                  initialArrForLabel[a].home,
+                  initialArrForLabel[a].draw,
+                  initialArrForLabel[a].away); 
+              awayVal = "0"; 
+          }
+
+          if (alertMessage && (homeValInfinite.length > 0 || drawValInfinite.length > 0 || awayValInfinite.length > 0) ) { 
+              alertInfinity(homeValInfinite, drawValInfinite, awayValInfinite); 
+          }
+          //
+
+          homeVals.push(homeVal);
+          drawVals.push(drawVal);
+          awayVals.push(awayVal);
+      }
+  }
+
+  var probsAndVals = { 
+      updates: updates,
+      homeOdds: homeOdds,
+      drawOdds: drawOdds,
+      awayOdds: awayOdds,
+      homeProbs: homeProbs,
+      drawProbs: drawProbs,
+      awayProbs: awayProbs,
+      homeVals: homeVals,
+      drawVals: drawVals,
+      awayVals: awayVals
+  }
+
+  return probsAndVals; 
 }

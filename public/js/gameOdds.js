@@ -30,169 +30,54 @@ function getGameOdds(eventId) {
                 drawChart(ucgt.chart.lay.coming.updates, ucgt.chart.lay.coming.homeProbs, ucgt.chart.lay.coming.drawProbs, ucgt.chart.lay.coming.awayProbs, "layComingProbs");
                 drawChart(ucgt.chart.lay.coming.updates, ucgt.chart.lay.coming.homeVals, ucgt.chart.lay.coming.drawVals, ucgt.chart.lay.coming.awayVals, "layComingVals");
                 drawChart(ucgt.chart.lay.coming.updates, ucgt.chart.lay.coming.homeCrossVals, ucgt.chart.lay.coming.drawCrossVals, ucgt.chart.lay.coming.awayCrossVals, "layComingCrossVals");
-             });
+              });
         }
     });     
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                 arr   in game       msg         do lay to back    cross
+function parseOdds(arr, isInPlay, typeForMessage, convertLayToBack, crossArr) { 
+    var enableMsgForNormal = false;
+    var enableMsgForCross = false
 
-function drawChart(updates, homeOdds, drawOdds, awayOdds, id) {
-    var ctx = document.getElementById(id).getContext('2d');
-    var chart = new Chart(ctx, {
-        // The type of chart we want to create
-        type: 'line',
-    
-        // The data for our dataset
-        data: {
-            labels: updates,
-            datasets: [{
-                label: 'Home',
-                fill: false,
-                borderColor: 'rgb(255, 99, 132)',
-                data: homeOdds
-            },
-            {
-                label: 'Draw',
-                fill: false,
-                borderColor: 'rgb(25, 112, 132)',
-                data: drawOdds
-            },
-            {
-                label: 'Away',
-                fill: false,
-                borderColor: 'rgb(99, 115, 132)',
-                data: awayOdds
-            }]
-        },
-    
-        // Configuration options go here
-        options: { }
-    });
-  }
-
-  function orderArr(arr) {
-    if (arr[0].updated > arr[arr.length - 1].updated) { arr = arr.reverse(); }
-    return arr;
-  }
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-function parseOdds(arr, isInPlay, crossArr) {
     arr = orderArr(arr);
+    var initialArrForLabel = arr;
 
-    var homeOdds = [];
-    var drawOdds = [];
-    var awayOdds = [];
-    var homeProbs = [];
-    var drawProbs = [];
-    var awayProbs = [];    
-    var homeVals = [];
-    var drawVals = [];
-    var awayVals = [];
-    var homeCrossVals = [];
-    var drawCrossVals = [];
-    var awayCrossVals = [];
-    var updates = [];
-
-    for (var a in arr) {
-
-        if (arr[a].isInPlay == isInPlay) {
-
-            // find corresponding cross
-            if (crossArr !== undefined) {
-                crossArr = orderArr(crossArr);
-
-                var startDate = new Date();
-                var prev;
-                var found = false;
-                for (var b in crossArr) {
-
-                    if (arr[a].updated > crossArr[b].updated) { startDate = crossArr[b].updated; }
-                    if (arr[a].updated <= crossArr[b].updated && arr[a].updated >= startDate && found == false) {
-                        found = true;
-                        var correspondingCross = prev;
-
-                    }
-                    prev = crossArr[b];
-                }
-            }
-            
-            // calculate vlue with cross probabilities
-            if (correspondingCross !== undefined) {
-                var homeCrossInterm = parseFloat(1 / correspondingCross.home * 100).toFixed(2); 
-                var drawCrossInterm = parseFloat(1 / correspondingCross.draw * 100).toFixed(2);
-                var awayCrossInterm = parseFloat(1 / correspondingCross.away * 100).toFixed(2);
-                var sumCrossInterm = parseFloat(homeCrossInterm) + parseFloat(drawCrossInterm) + parseFloat(awayCrossInterm);
-                sumCrossInterm = sumCrossInterm.toFixed(2);
-    
-                var homeCrossProb = parseFloat(homeCrossInterm/sumCrossInterm * 100).toFixed(2);
-                var drawCrossProb = parseFloat(drawCrossInterm/sumCrossInterm * 100).toFixed(2);
-                var awayCrossProb = parseFloat(awayCrossInterm/sumCrossInterm * 100).toFixed(2);
-
-                var homeCrossVal = parseFloat(arr[a].home - 1 / homeCrossProb*100).toFixed(2);
-                var drawCrossVal = parseFloat(arr[a].draw - 1 / drawCrossProb*100).toFixed(2);
-                var awayCrossVal = parseFloat(arr[a].away - 1 / awayCrossProb*100).toFixed(2);
-
-                homeCrossVals.push(homeCrossVal);
-                drawCrossVals.push(drawCrossVal);
-                awayCrossVals.push(awayCrossVal);
-            }
-            //
-
-            homeOdds.push(arr[a].home);
-            drawOdds.push(arr[a].draw);
-            awayOdds.push(arr[a].away);
-
-            updates.push(moment(arr[a].updated).format('H : mm'));
-
-            var homeInterm = parseFloat(1 / arr[a].home * 100).toFixed(2); 
-            var drawInterm = parseFloat(1 / arr[a].draw * 100).toFixed(2);
-            var awayInterm = parseFloat(1 / arr[a].away * 100).toFixed(2);
-            var sumInterm = parseFloat(homeInterm) + parseFloat(drawInterm) + parseFloat(awayInterm);
-            sumInterm = sumInterm.toFixed(2);
-
-            var homeProb = parseFloat(homeInterm/sumInterm * 100).toFixed(2);
-            var drawProb = parseFloat(drawInterm/sumInterm * 100).toFixed(2);
-            var awayProb = parseFloat(awayInterm/sumInterm * 100).toFixed(2);
-            var sumProb = parseFloat(homeProb)+parseFloat(drawProb)+parseFloat(awayProb);
-            sumProb = sumProb.toFixed(2)
-
-            var homeVal = parseFloat(arr[a].home - 1 / homeProb*100).toFixed(2);
-            var drawVal = parseFloat(arr[a].draw - 1 / drawProb*100).toFixed(2);
-            var awayVal = parseFloat(arr[a].away - 1 / awayProb*100).toFixed(2);
-
-            homeProbs.push(homeProb);
-            drawProbs.push(drawProb);
-            awayProbs.push(awayProb);
-
-            homeVals.push(homeVal);
-            drawVals.push(drawVal);
-            awayVals.push(awayVal);
-        }
+    if (convertLayToBack) {
+        arr = laysToBacks(arr);
     }
 
+    //
+    if (crossArr !== undefined) {
+        var crossProbsAndVals = getProbsAndVals(arr, isInPlay, typeForMessage, initialArrForLabel, enableMsgForCross, crossArr);
+    } else { 
+           var crossProbsAndVals = [];
+    }
+    var probsAndVals =          getProbsAndVals(arr, isInPlay, typeForMessage, initialArrForLabel, enableMsgForNormal);
+    //
+
     return {
-        updates: updates,
+        updates:  probsAndVals.updates,
         odds: {
-            home: homeOdds,
-            draw: drawOdds,
-            away: awayOdds
+            home: probsAndVals.homeOdds,
+            draw: probsAndVals.drawOdds,
+            away: probsAndVals.awayOdds
         },
         probs: {
-            home: homeProbs,
-            draw: drawProbs,
-            away: awayProbs
+            home: probsAndVals.homeProbs,
+            draw: probsAndVals.drawProbs,
+            away: probsAndVals.awayProbs
         },
         vals: {
-            home: homeVals,
-            draw: drawVals,
-            away: awayVals
+            home: probsAndVals.homeVals,
+            draw: probsAndVals.drawVals,
+            away: probsAndVals.awayVals
         },
         crossVals: {
-            home: homeCrossVals,
-            draw: drawCrossVals,
-            away: awayCrossVals
+            home: crossProbsAndVals.homeVals,
+            draw: crossProbsAndVals.drawVals,
+            away: crossProbsAndVals.awayVals
         }
     };
 }
@@ -216,17 +101,18 @@ function getOdds(odds) {
     try { var back = odds[0].markets[0].combined.back; if (back === undefined) { back = ["undefined"] } } catch (e) { var back = ["undefined"]; }
     try { var lay = odds[0].markets[0].combined.lay; if (lay === undefined) { lay = ["undefined"] } } catch (e) { var lay = ["undefined"]; }
 
+    //                                   arr   inGame  msg   layToB  cross
+    var parsedInGameBackOdds = parseOdds(back, true, "BACK", false, lay);
+    var parsedComingBackOdds = parseOdds(back, false, "BACK", false, lay);
+    var parsedInGameLayOdds = parseOdds(lay, true, "LAY", true, back);
+    var parsedComingLayOdds = parseOdds(lay, false, "LAY", true, back);
+    //
 
-    var parsedInGameBackOdds = parseOdds(back, true, lay);
-    var parsedComingBackOdds = parseOdds(back, false, lay);
-    var parsedInGameLayOdds = parseOdds(lay, true, back);
-    var parsedComingLayOdds = parseOdds(lay, false, back);
+    var width = "width='1400'"
 
-    var width = "width='1000'"
-
-   var names = eventName.split(" v ")
-   var homeName = names[0];
-   var awayName = names[1]; 
+    var names = eventName.split(" v ")
+    var homeName = names[0];
+    var awayName = names[1]; 
 
     var outputEvent = 
         "<table class='table table-striped' style='font-size:8px;'>"
@@ -293,34 +179,34 @@ function getOdds(odds) {
         chart: {
             back : {
                 inGame: {
-                    homeOdds: parsedInGameBackOdds.odds.home,
-                    drawOdds: parsedInGameBackOdds.odds.draw,
-                    awayOdds: parsedInGameBackOdds.odds.away,
-                    homeProbs: parsedInGameBackOdds.probs.home,
-                    drawProbs: parsedInGameBackOdds.probs.draw,
-                    awayProbs: parsedInGameBackOdds.probs.away,
-                    homeVals: parsedInGameBackOdds.vals.home,
-                    drawVals: parsedInGameBackOdds.vals.draw,
-                    awayVals: parsedInGameBackOdds.vals.away,                  
+                    homeOdds:      parsedInGameBackOdds.odds.home,
+                    drawOdds:      parsedInGameBackOdds.odds.draw,
+                    awayOdds:      parsedInGameBackOdds.odds.away,
+                    homeProbs:     parsedInGameBackOdds.probs.home,
+                    drawProbs:     parsedInGameBackOdds.probs.draw,
+                    awayProbs:     parsedInGameBackOdds.probs.away,
+                    homeVals:      parsedInGameBackOdds.vals.home,
+                    drawVals:      parsedInGameBackOdds.vals.draw,
+                    awayVals:      parsedInGameBackOdds.vals.away,                  
                     homeCrossVals: parsedInGameBackOdds.crossVals.home,
                     drawCrossVals: parsedInGameBackOdds.crossVals.draw,
                     awayCrossVals: parsedInGameBackOdds.crossVals.away,
-                    updates: parsedInGameBackOdds.updates
+                    updates:       parsedInGameBackOdds.updates
                     },
                 coming: {
-                    homeOdds: parsedComingBackOdds.odds.home,
-                    drawOdds: parsedComingBackOdds.odds.draw,
-                    awayOdds: parsedComingBackOdds.odds.away,
-                    homeProbs: parsedComingBackOdds.probs.home,
-                    drawProbs: parsedComingBackOdds.probs.draw,
-                    awayProbs: parsedComingBackOdds.probs.away,
-                    homeVals: parsedComingBackOdds.vals.home,
-                    drawVals: parsedComingBackOdds.vals.draw,
-                    awayVals: parsedComingBackOdds.vals.away,
+                    homeOdds:      parsedComingBackOdds.odds.home,
+                    drawOdds:      parsedComingBackOdds.odds.draw,
+                    awayOdds:      parsedComingBackOdds.odds.away,
+                    homeProbs:     parsedComingBackOdds.probs.home,
+                    drawProbs:     parsedComingBackOdds.probs.draw,
+                    awayProbs:     parsedComingBackOdds.probs.away,
+                    homeVals:      parsedComingBackOdds.vals.home,
+                    drawVals:      parsedComingBackOdds.vals.draw,
+                    awayVals:      parsedComingBackOdds.vals.away,
                     homeCrossVals: parsedComingBackOdds.crossVals.home,
                     drawCrossVals: parsedComingBackOdds.crossVals.draw,
                     awayCrossVals: parsedComingBackOdds.crossVals.away,
-                    updates: parsedComingBackOdds.updates
+                    updates:       parsedComingBackOdds.updates
                     }
                },
             lay : {
