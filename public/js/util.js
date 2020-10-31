@@ -17,7 +17,7 @@ var urlParam = function(name){
 // get data picker (stats, bets, account)
 function datePicker(f,f2) {
               
-    var start = moment().subtract(2, 'days');
+    var start = moment().subtract(300, 'days');
     var end = moment();
 
     function cb(start, end) {
@@ -264,10 +264,13 @@ function gamesTable(results) {
 //###################################################################################
 
 function betsTable(results) {
+  
   var outputTop = 
   "<table class='table table-striped' style='font-size:8px;'>"
   + "<thead>"
       + "<tr>"
+          + "<th></th>"
+          + "<th></th>"
           + "<th>Date</th>"
           + "<th>Home</th>"
           + "<th>Away</th>"
@@ -290,87 +293,119 @@ function betsTable(results) {
 
   var outputBody = "";
   var errorCode = "";
+  var count = 0;
 
   for (var ii in results) {
 
-    // add error code for failed bets
-    if (results[ii].betStatus.status == "FAILURE") {
-      errorCode = "<br>" + JSON.parse(results[ii].betStatus.instructionReports).errorCode;
-    } else {
-      errorCode = "";
-    }
+          var flag = false;
+
+          // add error code for failed bets
+          if (results[ii].betStatus.status == "FAILURE") {
+            errorCode = "<br>" + JSON.parse(results[ii].betStatus.instructionReports).errorCode;
+          } else {
+            errorCode = "";
+          }
     
-    // game name split to eams
-    var teams = results[ii].gameName.split(" v ")
+          // game name split to eams
+          var teams = results[ii].gameName.split(" v ")
 
-    // bet on home or away
-    if (results[ii].placedOn == teams[0]) {
-      var home = "<br>- home -"; }
-    else {
-      var home = "<br>- away -";
+          // bet on home or away
+          if (results[ii].placedOn == teams[0]) {
+            var home = "<br>- home -"; }
+          else {
+            var home = "<br>- away -";
+          }
+
+          // detect winner
+          try { 
+            var score = "<br>" + results[ii].score.home.score + " : " + results[ii].score.away.score;
+            var resultDiv =  results[ii].score.home.score - results[ii].score.away.score 
+          } catch(e) { 
+            var resultDiv = 999; 
+            var score = "<br>unknown"; 
+          }
+          
+          if ( resultDiv == 999) 
+            { var winer = "unknown"; }
+          else if ( resultDiv > 0) 
+            { var winer = teams[0]; }
+          else if ( resultDiv < 0) 
+            { var winer = teams[1]; }
+          else { var winer = "The Draw"; }  
+
+          // add color to the row
+          var color = "";
+          // successfuly placed
+          if (results[ii].betStatus.status == "SUCCESS")
+            { var color = "#CCFFCC"; }
+          // lost
+          if (winer.toUpperCase() != results[ii].placedOn.toUpperCase() && winer != "unknown" && results[ii].score.home.score == results[ii].score.away.score) 
+            { var color = "#FFCCCC"; 
+              flag = true;
+            }
+          // in play
+          if (results[ii].betStatus.status == "SUCCESS" && results[ii].gameStatus == "IN_PLAY") 
+            { var color = "#FFFFCC"; }
+          // error state
+          if (winer == "unknown" && moment(dateFromObjectId(results[ii]._id)).isBefore(moment().subtract(30, 'minutes')))
+            { var color = "#CCFFFF"; }
+
+          var price = results[ii].price;
+          var sum = results[ii].sum;
+          var type = results[ii].type;
+          var profit = price * sum - sum;
+
+          var x = [];
+
+          if (flag && price > 0) {
+
+            //var div = results[ii].eventId;
+
+            outputBody = outputBody 
+              + "<tr style='background-color:" + color + ";'>"
+              + "<td><div id='" + results[ii].eventId + "'></div><div id='xx'></div></td>"
+              + "<td>" + count++ + "</td>"
+              + "<td>" + moment(dateFromObjectId(results[ii]._id)).format('H:mm:ss DD/MM/YYYY') + "</td>"
+              + "<td>" + teams[0] + "</td>"
+              + "<td>" + teams[1] + "</td>"
+              + "<td>" + results[ii].elapsedTime + "</td>"
+              + "<td>" + results[ii].placedOn + home + "</td>"
+              + "<td>" + price + "</td>"
+              + "<td>" + sum + "</td>"
+              + "<td>" + profit.toFixed(2) + "</td>"
+              + "<td>" + results[ii].eventId + "</td>"
+              + "<td>" + type + "</td>"
+              + "<td>" + results[ii].gameStatus + "</td>"
+              + "<td>" + results[ii].betStatus.status + errorCode + "</td>"
+              + "<td>" + winer + score + "</td>"
+              + "<td><a href='/game?eventId=" + results[ii].eventId + "' target='_blank'>STATS</a></td>"
+              + "<td><a href='/search?" 
+                    + "team1=" + teams[0] 
+                    + "&team2=" + teams[1] 
+                    + "' target='_blank'>SEARCH</a></td>"
+              + "<td><a href='/gameOdds?eventId=" + results[ii].eventId + "' target='_blank'>ODDS</a></td>"
+              + "</tr>"
+              + "<div id='xx'></div>";
+
+              var body = { find: { "eventId": results[ii].eventId } };
+              $.ajax({
+                 type: "POST",
+                 url: "/findGamesQuery",
+                 contentType: "application/json; charset=utf-8",
+                 data: JSON.stringify(body),
+                 success: function(msg) {
+                    var game = msg.results[0];
+                    var a = game.markets[0].combined.back.map(x=>x.draw);
+                    a =  Math.max.apply(Math, a);
+                    var updatetd = "#" + game.eventId;
+                    $(updatetd).html(a);
+                    x.push(a+"<br>");
+                    $("#xx").html(x);
+                 }
+              });
+            }
     }
 
-    // detect winner
-    try { 
-      var score = "<br>" + results[ii].score.home.score + " : " + results[ii].score.away.score;
-      var resultDiv =  results[ii].score.home.score - results[ii].score.away.score 
-    } catch(e) { 
-      var resultDiv = 999; 
-      var score = "<br>unknown"; 
-    }
-    
-    if ( resultDiv == 999) 
-      { var winer = "unknown"; }
-    else if ( resultDiv > 0) 
-      { var winer = teams[0]; }
-    else if ( resultDiv < 0) 
-      { var winer = teams[1]; }
-    else { var winer = "The Draw"; }  
-
-    // add color to the row
-    var color = "";
-    // successfuly placed
-    if (results[ii].betStatus.status == "SUCCESS")
-      { var color = "#CCFFCC"; }
-    // lost
-    if (winer.toUpperCase() != results[ii].placedOn.toUpperCase() && winer != "unknown") 
-      { var color = "#FFCCCC"; }
-    // in play
-    if (results[ii].betStatus.status == "SUCCESS" && results[ii].gameStatus == "IN_PLAY") 
-      { var color = "#FFFFCC"; }
-    // error state
-    if (winer == "unknown" && moment(dateFromObjectId(results[ii]._id)).isBefore(moment().subtract(30, 'minutes')))
-      { var color = "#CCFFFF"; }
-
-    var price = results[ii].price;
-    var sum = results[ii].sum;
-    var type = results[ii].type;
-    var profit = price * sum - sum;
-
-    outputBody = outputBody 
-      + "<tr style='background-color:" + color + ";'>"
-      + "<td>" + moment(dateFromObjectId(results[ii]._id)).format('H:mm:ss DD/MM/YYYY') + "</td>"
-      + "<td>" + teams[0] + "</td>"
-      + "<td>" + teams[1] + "</td>"
-      + "<td>" + results[ii].elapsedTime + "</td>"
-      + "<td>" + results[ii].placedOn + home + "</td>"
-      + "<td>" + price + "</td>"
-      + "<td>" + sum + "</td>"
-      + "<td>" + profit.toFixed(2) + "</td>"
-      + "<td>" + results[ii].eventId + "</td>"
-      + "<td>" + type + "</td>"
-      + "<td>" + results[ii].gameStatus + "</td>"
-      + "<td>" + results[ii].betStatus.status + errorCode + "</td>"
-      + "<td>" + winer + score + "</td>"
-      + "<td><a href='/game?eventId=" + results[ii].eventId + "' target='_blank'>STATS</a></td>"
-      + "<td><a href='/search?" 
-            + "team1=" + teams[0] 
-            + "&team2=" + teams[1] 
-            + "' target='_blank'>SEARCH</a></td>"
-      + "<td><a href='/gameOdds?eventId=" + results[ii].eventId + "' target='_blank'>ODDS</a></td>"
-      + "</tr>";
-  }
-  
   var outputBottom =  "</tbody></table>";
 
   return outputTop + outputBody + outputBottom;
